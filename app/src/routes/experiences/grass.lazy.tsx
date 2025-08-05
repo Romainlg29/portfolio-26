@@ -1,0 +1,333 @@
+import {
+  OrbitControls,
+  RoundedBox,
+  useGLTF,
+  useHelper,
+  useTexture,
+} from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { createLazyFileRoute } from "@tanstack/react-router";
+import { useControls } from "leva";
+import { useEffect, useMemo, useRef, useState, type FC } from "react";
+import {
+  Color,
+  DirectionalLight,
+  DirectionalLightHelper,
+  DoubleSide,
+  Euler,
+  InstancedMesh,
+  Matrix4,
+  Mesh,
+  MeshStandardMaterial,
+  MeshToonMaterial,
+  PlaneGeometry,
+  ShaderMaterial,
+  Vector3,
+} from "three";
+import CustomShaderMaterial from "three-custom-shader-material/vanilla";
+import { MeshSurfaceSampler } from "three-stdlib";
+
+// import vertex from "@/components/shaders/grass-vertex.glsl";
+// import fragment from "@/components/shaders/grass-fragment.glsl";
+
+import fragment from "@/components/shaders/csm/grass-fragment-csm.glsl?raw";
+import vertex from "@/components/shaders/csm/grass-vertex-csm.glsl?raw";
+import { Perf } from "r3f-perf";
+
+// Default options for the grass shader
+const grass_options = {
+  uBaseColor: "#000000",
+  uTipColor: "#3f841a",
+  uWindTipColor: "#589e16",
+  uWindStrength: 1.8,
+  uNoiseScale: 0.15,
+  uMaxDistance: 20,
+  uMaxDisplacementDistance: 15,
+};
+
+const terrain_options = {
+  color: "#3b250e",
+};
+
+const lights_options = {
+  helper: false,
+};
+
+const Grass: FC<{
+  count: number;
+  sampler: MeshSurfaceSampler | null;
+}> = ({ count, sampler }) => {
+  // Load the grass model
+  const { nodes } = useGLTF("/models/grass.glb", true);
+
+  // Load the alpha texture for the grass
+  const alpha = useTexture("/textures/grass-alpha.jpeg");
+
+  // Store the instanced mesh reference
+  const instanceRef = useRef<InstancedMesh>(null!);
+
+  // Create controls for the base color of the grass
+  useControls("Grass instances", {
+    uBaseColor: {
+      value: grass_options.uBaseColor,
+      label: "Base Color",
+      onChange: (value) => {
+        (
+          instanceRef.current.material as ShaderMaterial
+        ).uniforms.uBaseColor.value.set(value);
+      },
+    },
+    uTipColor: {
+      value: grass_options.uTipColor,
+      label: "Tip Color",
+      onChange: (value) => {
+        (
+          instanceRef.current.material as ShaderMaterial
+        ).uniforms.uTipColor.value.set(value);
+      },
+    },
+    uWindTipColor: {
+      value: grass_options.uWindTipColor,
+      label: "Wind Tip Color",
+      onChange: (value) => {
+        (
+          instanceRef.current.material as ShaderMaterial
+        ).uniforms.uWindTipColor.value.set(value);
+      },
+    },
+    uWindStrength: {
+      value: grass_options.uWindStrength,
+      label: "Wind Strength",
+      min: 0,
+      max: 5,
+      step: 0.01,
+      onChange: (value) => {
+        (
+          instanceRef.current.material as ShaderMaterial
+        ).uniforms.uWindStrength.value = value;
+      },
+    },
+    uNoiseScale: {
+      value: grass_options.uNoiseScale,
+      label: "Noise Scale",
+      min: 0.01,
+      max: 5,
+      step: 0.01,
+      onChange: (value) => {
+        (
+          instanceRef.current.material as ShaderMaterial
+        ).uniforms.uNoiseScale.value = value;
+      },
+    },
+    uMaxDistance: {
+      value: grass_options.uMaxDistance,
+      label: "Max Distance",
+      min: 0,
+      max: 1000,
+      step: 1,
+      onChange: (value) => {
+        (
+          instanceRef.current.material as ShaderMaterial
+        ).uniforms.uMaxDistance.value = value;
+      },
+    },
+    uMaxDisplacementDistance: {
+      value: grass_options.uMaxDisplacementDistance,
+      label: "Max Displacement Distance",
+      min: 0,
+      max: 500,
+      step: 1,
+      onChange: (value) => {
+        (
+          instanceRef.current.material as ShaderMaterial
+        ).uniforms.uMaxDisplacementDistance.value = value;
+      },
+    },
+  });
+
+  // Extract the geometry from the loaded model
+  const geometry = useMemo(
+    () => (nodes["grass"] as Mesh).geometry.clone(),
+    [nodes]
+  );
+
+  // Material for the grass instances
+  const material = useMemo(() => {
+    const texture = alpha.clone();
+    texture.flipY = false;
+
+    return new CustomShaderMaterial({
+      baseMaterial: MeshToonMaterial,
+      vertexShader: vertex,
+      fragmentShader: fragment,
+      uniforms: {
+        uTime: { value: 0 },
+
+        uBaseColor: { value: new Color(grass_options.uBaseColor) },
+        uTipColor: { value: new Color(grass_options.uTipColor) },
+        uWindTipColor: { value: new Color(grass_options.uWindTipColor) },
+        uWindStrength: { value: grass_options.uWindStrength },
+        uNoiseScale: { value: grass_options.uNoiseScale },
+
+        uMaxDistance: { value: grass_options.uMaxDistance },
+        uMaxDisplacementDistance: {
+          value: grass_options.uMaxDisplacementDistance,
+        },
+      },
+
+      transparent: true,
+      alphaTest: 0.1,
+      side: DoubleSide,
+
+      alphaMap: texture,
+    });
+  }, [alpha]);
+
+  // Use the surface sampler to generate positions for the grass instances
+  useEffect(() => {
+    if (!sampler || !instanceRef.current) return;
+
+    const transforms = Array.from({ length: count }, () => {
+      const position = new Vector3();
+
+      // Sample a position from the surface sampler
+      sampler.sample(position);
+
+      // Compute a random rotation around the Y-axis
+      const rotationY = Math.random() * Math.PI * 2;
+
+      // Apply the rotation and position to the instance
+      const matrix = new Matrix4();
+      matrix.makeRotationFromEuler(new Euler(0, rotationY, 0));
+      matrix.setPosition(position);
+
+      return matrix;
+    });
+
+    // Set the matrices for the instanced mesh
+    transforms.forEach((matrix, index) => {
+      instanceRef.current.setMatrixAt(index, matrix);
+    });
+
+    // Mark the instance matrix as needing an update
+    instanceRef.current.instanceMatrix.needsUpdate = true;
+  }, [sampler, count]);
+
+  useFrame((_, delta) => {
+    if (!instanceRef.current) return;
+
+    // Update the time uniform for the shader material
+    (instanceRef.current.material as ShaderMaterial).uniforms.uTime.value +=
+      delta;
+  });
+
+  return (
+    <instancedMesh
+      ref={instanceRef}
+      args={[geometry, material, count]}
+      receiveShadow
+    />
+  );
+};
+
+const Terrain: FC<{
+  setSampler: (sampler: MeshSurfaceSampler | null) => void;
+}> = ({ setSampler }) => {
+  // Create a mesh reference to use with the sampler
+  const meshRef = useRef<Mesh>(null!);
+
+  useControls("Terrain", {
+    color: {
+      value: terrain_options.color,
+      label: "Terrain Color",
+      onChange: (value) => {
+        (meshRef.current.material as MeshStandardMaterial).color = new Color(
+          value
+        );
+      },
+    },
+  });
+
+  // Expose the sampler to the parent component
+  useEffect(() => {
+    if (!meshRef.current) return;
+
+    // Create a plane geometry for the terrain
+    meshRef.current.geometry = new PlaneGeometry(10, 10, 1, 1);
+
+    // Apply the rotation to the mesh geometry
+    meshRef.current.geometry.rotateX(-Math.PI / 2);
+
+    // Convert the plane geometry to a non-indexed version
+    const geometry = meshRef.current.geometry.toNonIndexed();
+
+    const clone = meshRef.current.clone();
+    clone.geometry = geometry;
+
+    // Create a new MeshSurfaceSampler using the mesh reference
+    const sampler = new MeshSurfaceSampler(clone).build();
+
+    // Set the sampler in the parent component
+    setSampler(sampler);
+
+    // Clean up the sampler when the component unmounts
+    return () => setSampler(null);
+  }, [setSampler]);
+
+  return (
+    <mesh ref={meshRef}>
+      <meshStandardMaterial color={terrain_options.color} />
+    </mesh>
+  );
+};
+
+const Lights = () => {
+  const { helper } = useControls("Lights", lights_options);
+
+  // Create a reference for the directional light
+  const directionalLightRef = useRef<DirectionalLight>(null!);
+
+  // Use the helper to visualize the directional light
+  useHelper(helper && directionalLightRef, DirectionalLightHelper, 1, "red");
+
+  return (
+    <>
+      <ambientLight intensity={0.5} />
+      <directionalLight
+        ref={directionalLightRef}
+        position={[5, 5, 5]}
+        intensity={1}
+        castShadow
+      />
+    </>
+  );
+};
+
+const Index = () => {
+  const [sampler, setSampler] = useState<MeshSurfaceSampler | null>(null);
+
+  const { performance } = useControls("Performance", {
+    performance: false,
+  });
+
+  return (
+    <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
+      <Canvas shadows className="w-full h-full">
+        <OrbitControls />
+
+        <Lights />
+
+        <Terrain setSampler={setSampler} />
+        <Grass count={25_000} sampler={sampler} />
+
+        <RoundedBox position={[0, 0.5, 0]} castShadow receiveShadow />
+
+        {performance ? <Perf position="top-left" /> : null}
+      </Canvas>
+    </div>
+  );
+};
+
+export const Route = createLazyFileRoute("/experiences/grass")({
+  component: Index,
+});
