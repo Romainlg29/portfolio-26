@@ -29,7 +29,8 @@ const lights_options = {
 };
 
 const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
-  const depthRenderTarget = useFBO(512, 512, { depthBuffer: true });
+  const depthRenderTargetA = useFBO(512, 512, { depthBuffer: true });
+  const depthRenderTargetB = useFBO(512, 512, { depthBuffer: true });
 
   const waterMeshRef = useRef<Mesh>(null!);
 
@@ -52,25 +53,26 @@ const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
   useFrame(({ scene, gl }, delta) => {
     if (!waterMeshRef.current) return;
 
-    // Render scene depth (without water)
+    // Render scene depth
     camera.layers.set(0);
-    gl.setRenderTarget(depthRenderTarget);
+    gl.setRenderTarget(depthRenderTargetA);
     gl.clear();
     gl.render(scene, camera);
     gl.setRenderTarget(null);
 
     // Set the depth texture for the shader
-    material.uniforms.uDepthTexture.value = depthRenderTarget.depthTexture;
+    material.uniforms.uDepthTexture.value = depthRenderTargetA.depthTexture;
 
     // Render water mesh depth to B
     camera.layers.set(1);
-    gl.setRenderTarget(depthRenderTarget);
+    gl.setRenderTarget(depthRenderTargetB);
     gl.clear();
     gl.render(scene, camera);
     gl.setRenderTarget(null);
 
     // Set the water depth texture for the shader (from B)
-    material.uniforms.uWaterDepthTexture.value = depthRenderTarget.depthTexture;
+    material.uniforms.uWaterDepthTexture.value =
+      depthRenderTargetB.depthTexture;
 
     // Update the time uniform for the shader
     if (material.uniforms.uTime) {
