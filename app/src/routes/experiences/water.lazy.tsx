@@ -29,8 +29,7 @@ const lights_options = {
 };
 
 const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
-  const depthRenderTargetA = useFBO(512, 512, { depthBuffer: true });
-  const depthRenderTargetB = useFBO(512, 512, { depthBuffer: true });
+  const depthRenderTarget = useFBO(512, 512, { depthBuffer: true });
 
   const waterMeshRef = useRef<Mesh>(null!);
 
@@ -42,8 +41,6 @@ const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
       fragmentShader: fragment,
       uniforms: {
         uTime: { value: 0 },
-        uDepthTexture: { value: null },
-        uWaterDepthTexture: { value: null },
         uCameraNear: { value: camera.near },
         uCameraFar: { value: camera.far },
       },
@@ -53,27 +50,6 @@ const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
   useFrame(({ scene, gl }, delta) => {
     if (!waterMeshRef.current) return;
 
-    // Render scene depth
-    camera.layers.set(0);
-    gl.setRenderTarget(depthRenderTargetA);
-    gl.clear();
-    gl.render(scene, camera);
-    gl.setRenderTarget(null);
-
-    // Set the depth texture for the shader
-    material.uniforms.uDepthTexture.value = depthRenderTargetA.depthTexture;
-
-    // Render water mesh depth to B
-    camera.layers.set(1);
-    gl.setRenderTarget(depthRenderTargetB);
-    gl.clear();
-    gl.render(scene, camera);
-    gl.setRenderTarget(null);
-
-    // Set the water depth texture for the shader (from B)
-    material.uniforms.uWaterDepthTexture.value =
-      depthRenderTargetB.depthTexture;
-
     // Update the time uniform for the shader
     if (material.uniforms.uTime) {
       material.uniforms.uTime.value += delta;
@@ -81,13 +57,7 @@ const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
   });
 
   return (
-    <mesh
-      ref={waterMeshRef}
-      material={material}
-      rotation-x={-Math.PI / 2}
-      // Set the layer to 1 for depth rendering
-      layers={1}
-    >
+    <mesh ref={waterMeshRef} material={material} rotation-x={-Math.PI / 2}>
       <planeGeometry args={[10, 10, 1, 1]} />
     </mesh>
   );
@@ -158,19 +128,9 @@ const Index = () => {
   const [depthCamera, setDepthCamera] =
     useState<OrthographicCameraClass | null>(null);
 
-  // Enable the layer 1 rendering
-  const layers = useMemo(() => {
-    const lays = new Layers();
-
-    // Add the layer one
-    lays.enable(1);
-
-    return lays;
-  }, []);
-
   return (
     <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
-      <Canvas shadows className="w-full h-full" camera={{ layers: layers }}>
+      <Canvas shadows className="w-full h-full">
         <OrbitControls />
 
         <Lights />
