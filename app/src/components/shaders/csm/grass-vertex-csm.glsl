@@ -13,6 +13,7 @@ uniform float uMaxDistance;
 // Varying variables to pass data to the fragment shader
 varying vec2 vUv;
 varying float vNoise;
+varying float vDiscard;
 
 // Simplex noise implementation
 vec3 mod289(vec3 x) {
@@ -62,11 +63,37 @@ float simplexNoise(vec2 v) {
     return 130.0 * dot(m, g);
 }
 
+// Frustum culling function using projection and modelView matrices
+bool isInsideFrustum(vec4 clipSpacePos) {
+    // After perspective division, check if the position is within NDC bounds
+    vec3 ndc = clipSpacePos.xyz / clipSpacePos.w;
+
+    // Add margin to prevent grass from popping at frustum edges
+    float margin = 0.2; // Adjust this value to increase/decrease margin
+    float minBound = -1.0 - margin;
+    float maxBound = 1.0 + margin;
+
+    // Check if within expanded normalized device coordinates
+    return (ndc.x >= minBound && ndc.x <= maxBound &&
+            ndc.y >= minBound && ndc.y <= maxBound &&
+            ndc.z >= -1.0 && ndc.z <= 1.0); // Keep Z bounds strict for near/far planes
+}
+
 void main() {
     vUv = uv;
 
     // Convert the position to world space
     vec4 worldPos = instanceMatrix * vec4(position, 1.0);
+
+    // Transform to clip space for frustum culling
+    vec4 clipSpacePos = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+
+    // Frustum culling - cull if outside view frustum (with margin)
+    if (!isInsideFrustum(clipSpacePos)) {
+        csm_PositionRaw = vec4(-999999.0);
+        vDiscard = 1.0;
+        return;
+    }
 
     // Compute the distance from the camera to this grass instance
     vec3 cameraPos = (inverse(viewMatrix) * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
@@ -80,7 +107,8 @@ void main() {
 
     // Discard vertices that are too far from the camera
     if (distanceToCamera > uMaxDistance) {
-        csm_PositionRaw = vec4(0.0);
+        csm_PositionRaw = vec4(-999999.0);
+        vDiscard = 1.0;
         return;
     }
 
@@ -120,5 +148,7 @@ void main() {
     bendPosition.y *= fadeFactor;
 
     // Set the final position for the vertex shader
-    csm_PositionRaw = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(bendPosition, 1.0);
+    vec4 bentWorldPos = instanceMatrix * vec4(bendPosition, 1.0);
+    vec4 bentClipSpacePos = projectionMatrix * modelViewMatrix * bentWorldPos;
+    csm_PositionRaw = bentClipSpacePos;
 }

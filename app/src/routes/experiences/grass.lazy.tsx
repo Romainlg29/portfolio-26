@@ -10,11 +10,13 @@ import { createLazyFileRoute } from "@tanstack/react-router";
 import { useControls } from "leva";
 import { useEffect, useMemo, useRef, useState, type FC } from "react";
 import {
+  Box3,
   Color,
   DirectionalLight,
   DirectionalLightHelper,
   DoubleSide,
   Euler,
+  Frustum,
   InstancedMesh,
   Matrix4,
   Mesh,
@@ -36,9 +38,11 @@ import { Perf } from "r3f-perf";
 
 // Default options for the grass shader
 const grass_options = {
+  // Colors
   uBaseColor: "#000000",
-  uTipColor: "#3f841a",
-  uWindTipColor: "#589e16",
+  uTipColor: "#589941",
+  uWindTipColor: "#2e5f36",
+  // Parameters
   uWindStrength: 1.8,
   uNoiseScale: 0.15,
   uMaxDistance: 20,
@@ -56,12 +60,16 @@ const lights_options = {
 const Grass: FC<{
   count: number;
   sampler: MeshSurfaceSampler | null;
-}> = ({ count, sampler }) => {
+  bounds?: {
+    min: Vector3;
+    max: Vector3;
+  };
+}> = ({ count, sampler, bounds }) => {
   // Load the grass model
   const { nodes } = useGLTF("/models/grass.glb", true);
 
   // Load the alpha texture for the grass
-  const alpha = useTexture("/textures/grass-alpha.jpeg");
+  const alpha = useTexture("/textures/vegetations/grass-alpha.webp");
 
   // Store the instanced mesh reference
   const instanceRef = useRef<InstancedMesh>(null!);
@@ -88,7 +96,7 @@ const Grass: FC<{
     },
     uWindTipColor: {
       value: grass_options.uWindTipColor,
-      label: "Wind Tip Color",
+      label: "Tip Wind Color",
       onChange: (value) => {
         (
           instanceRef.current.material as ShaderMaterial
@@ -176,12 +184,19 @@ const Grass: FC<{
       },
 
       transparent: true,
-      alphaTest: 0.1,
+      alphaTest: 0.5,
       side: DoubleSide,
 
       alphaMap: texture,
     });
   }, [alpha]);
+
+  // Create a bounding box for the grass instances for instance culling
+  const bbox = useMemo(() => {
+    if (!bounds) return null;
+
+    return new Box3(bounds.min.clone(), bounds.max.clone());
+  }, [bounds]);
 
   // Use the surface sampler to generate positions for the grass instances
   useEffect(() => {
@@ -213,12 +228,31 @@ const Grass: FC<{
     instanceRef.current.instanceMatrix.needsUpdate = true;
   }, [sampler, count]);
 
-  useFrame((_, delta) => {
+  useFrame(({ camera }, delta) => {
     if (!instanceRef.current) return;
 
     // Update the time uniform for the shader material
     (instanceRef.current.material as ShaderMaterial).uniforms.uTime.value +=
       delta;
+
+    // Frustrum culling for bounds
+    if (!bbox || !camera) return;
+
+    const frustrum = new Frustum();
+    const projectionMatrix = new Matrix4();
+
+    // Create the frustum from the camera's projection matrix
+    projectionMatrix.multiplyMatrices(
+      camera.projectionMatrix,
+      camera.matrixWorldInverse
+    );
+
+    // Set the frustrum from the projection matrix
+    frustrum.setFromProjectionMatrix(projectionMatrix);
+
+    // Check if the bounding box intersects with the frustum
+    const isVisible = frustrum.intersectsBox(bbox);
+    instanceRef.current.visible = isVisible;
   });
 
   return (
@@ -247,6 +281,19 @@ const Terrain: FC<{
       },
     },
   });
+
+  const bounds = useMemo(() => {
+    if (!meshRef.current) return null;
+
+    // Create a bounding box for the terrain mesh
+    const box = new Box3();
+    box.setFromObject(meshRef.current);
+
+    return {
+      min: [box.min.x, box.min.y, box.min.z],
+      max: [box.max.x, box.max.y, box.max.z],
+    };
+  }, []);
 
   // Expose the sampler to the parent component
   useEffect(() => {
