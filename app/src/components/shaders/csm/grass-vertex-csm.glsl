@@ -106,11 +106,11 @@ void main() {
     float fadeFactor = 1. - smoothstep(fadeStart, fadeEnd, distanceToCamera);
 
     // Discard vertices that are too far from the camera
-    if (distanceToCamera > uMaxDistance) {
-        csm_PositionRaw = vec4(-999999.0);
-        vDiscard = 1.0;
-        return;
-    }
+    // if (distanceToCamera > uMaxDistance) {
+    //     csm_PositionRaw = vec4(-999999.0);
+    //     vDiscard = 1.0;
+    //     return;
+    // }
 
     // Create island pattern using multiple octaves of noise
     vec2 noiseCoord1 = worldPos.xz * uNoiseScale;

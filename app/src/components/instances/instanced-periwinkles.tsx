@@ -1,0 +1,104 @@
+import { useGLTF, useTexture } from "@react-three/drei";
+import { useEffect, useMemo, useRef, type FC } from "react";
+import {
+  Color,
+  DoubleSide,
+  MeshStandardMaterial,
+  MeshToonMaterial,
+  Vector2,
+  type InstancedMesh,
+  type Matrix4,
+  type Mesh,
+} from "three";
+import CustomShaderMaterial from "three-custom-shader-material/vanilla";
+import vertex from "@/components/shaders/csm/vegetation/sway-vertex-csm.glsl?raw";
+import { useFrame } from "@react-three/fiber";
+
+type InstancedPeriwinklesProps = {
+  // The number of instances to render
+  instances: number;
+
+  // The size of each instance
+  size: number;
+
+  // The transorms for each instance
+  transforms: Matrix4[];
+
+  // If the instances should be hidden
+  hidden?: boolean;
+};
+
+const InstancedPeriwinkles: FC<InstancedPeriwinklesProps> = ({
+  instances,
+  size,
+  transforms,
+}) => {
+  // Load the grass model
+  const { nodes } = useGLTF("/models/natures/periwinkles.glb", true);
+
+  // Load the textures
+  const color = useTexture(
+    "/textures/vegetations/periwinkles/T_tfclbger_1K_B.jpg"
+  );
+
+  // Store the instanced mesh reference
+  const instanceRef = useRef<InstancedMesh>(null!);
+
+  // Extract the geometry from the loaded model
+  const geometry = useMemo(
+    () =>
+      (nodes["SM_tfclbger_VarB_LOD1"] as Mesh).geometry
+        .clone()
+        .scale(size, size, size),
+    [nodes, size]
+  );
+
+  // Material for the grass instances
+  const material = useMemo(() => {
+    const m = new CustomShaderMaterial({
+      baseMaterial: MeshToonMaterial,
+      vertexShader: vertex,
+      uniforms: {
+        uTime: { value: 0 },
+        uWindDirection: { value: new Vector2(1, 0) },
+        uWindStrength: { value: 0.3 },
+      },
+      side: DoubleSide,
+    });
+
+    m.map = color;
+    m.map.flipY = false;
+
+    return m;
+  }, [color]);
+
+  // Apply the transforms to the instances
+  useEffect(() => {
+    // If the instance reference is not set, return early
+    if (!instanceRef.current) return;
+
+    transforms.forEach((transform, index) => {
+      instanceRef.current.setMatrixAt(index, transform);
+    });
+
+    // Mark the instance matrix as needing an update
+    instanceRef.current.instanceMatrix.needsUpdate = true;
+  }, [transforms]);
+
+  // Update the time uniform for the shader
+  useFrame(() => {
+    if (!instanceRef.current) return;
+
+    material.uniforms.uTime.value += 0.03;
+  });
+
+  // Do not always re-render
+  return useMemo(
+    () => (
+      <instancedMesh ref={instanceRef} args={[geometry, material, instances]} />
+    ),
+    [geometry, material, instances]
+  );
+};
+
+export default InstancedPeriwinkles;
