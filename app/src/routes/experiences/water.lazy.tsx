@@ -1,7 +1,6 @@
 import {
   OrbitControls,
   useHelper,
-  useFBO,
   RoundedBox,
   OrthographicCamera,
 } from "@react-three/drei";
@@ -13,7 +12,6 @@ import {
   CameraHelper,
   DirectionalLight,
   DirectionalLightHelper,
-  Layers,
   Mesh,
   MeshToonMaterial,
   OrthographicCamera as OrthographicCameraClass,
@@ -29,7 +27,7 @@ const lights_options = {
 };
 
 const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
-  const depthRenderTarget = useFBO(512, 512, { depthBuffer: true });
+  // const depthRenderTarget = useFBO(512, 512, { depthBuffer: true });
 
   const waterMeshRef = useRef<Mesh>(null!);
 
@@ -47,7 +45,7 @@ const Water: FC<{ camera: OrthographicCameraClass }> = ({ camera }) => {
     });
   }, [camera]);
 
-  useFrame(({ scene, gl }, delta) => {
+  useFrame((_, delta) => {
     if (!waterMeshRef.current) return;
 
     // Update the time uniform for the shader

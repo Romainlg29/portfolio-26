@@ -20,17 +20,6 @@ type SimpleParticlesProps = {
   limit?: [number, number, number];
 };
 
-// Speed of rotation around the Y-axis
-const ROTATION_SPEED = 0.2;
-// Amplitude of noise added to Y-axis
-const NOISE_AMPLITUDE_Y = 2.0;
-// Frequency of noise added to Y-axis
-const NOISE_FREQUENCY_Y = 2.0;
-// Adjust for faster/slower floating
-const FLOAT_SPEED = 2;
-// How far from original position a particle can float
-const FLOAT_AMPLITUDE = 2;
-
 const SimpleParticles: FC<SimpleParticlesProps> = ({
   position,
   rotation,
@@ -54,8 +43,7 @@ const SimpleParticles: FC<SimpleParticlesProps> = ({
     new Float32Array(POINTS_PER_TEXTURE)
   );
 
-  const [originalPositions, setOriginalPositions] =
-    useState<Float32Array | null>(null);
+  const [_, setOriginalPositions] = useState<Float32Array | null>(null);
 
   const geometry = useRef<BufferGeometry | null>(null);
   const points = useRef<Points | null>(null);
@@ -121,7 +109,8 @@ const SimpleParticles: FC<SimpleParticlesProps> = ({
   useFrame((_, delta) => {
     if (!points.current) return;
 
-    points.current.material.uniforms.uTime.value += delta / 3;
+    (points.current.material as CustomShaderMaterial).uniforms.uTime.value +=
+      delta / 3;
   });
 
   return (
@@ -131,12 +120,14 @@ const SimpleParticles: FC<SimpleParticlesProps> = ({
       ref={points}
     >
       <bufferGeometry ref={geometry}>
+        {/* @ts-expect-error ts error */}
         <bufferAttribute
           attach="attributes-position"
           array={positions}
           count={POINTS_PER_TEXTURE}
           itemSize={3}
         />
+        {/* @ts-expect-error ts error */}
         <bufferAttribute
           attach="attributes-rotation"
           array={rotations}

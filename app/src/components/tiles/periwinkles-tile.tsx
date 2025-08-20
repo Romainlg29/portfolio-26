@@ -13,7 +13,7 @@ type PeriwinklesTileProps = {
 
 const PeriwinklesTile: FC<PeriwinklesTileProps> = ({ instances, size }) => {
   // Retrieve the tile context
-  const { sampler, box } = useTile();
+  const { sampler } = useTile();
 
   // Create the transforms for the grass instances
   const transforms = useMemo(() => {

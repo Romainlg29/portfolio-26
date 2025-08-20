@@ -13,7 +13,7 @@ type EverlastingTileProps = {
 
 const EverlastingTile: FC<EverlastingTileProps> = ({ instances, size }) => {
   // Retrieve the tile context
-  const { sampler, box } = useTile();
+  const { sampler } = useTile();
 
   // Create the transforms for the grass instances
   const transforms = useMemo(() => {

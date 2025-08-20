@@ -1,6 +1,6 @@
 import { useMemo, type FC } from "react";
 import { useTile } from "./tile";
-import { Euler, Matrix4, Quaternion, Vector3 } from "three";
+import {  Matrix4, Quaternion, Vector3 } from "three";
 import InstancedGrass from "../instances/instanced-grass";
 
 type GrassTileProps = {
@@ -13,7 +13,7 @@ type GrassTileProps = {
 
 const GrassTile: FC<GrassTileProps> = ({ instances, size }) => {
   // Retrieve the tile context
-  const { sampler, box } = useTile();
+  const { sampler } = useTile();
 
   // Create the transforms for the grass instances
   const transforms = useMemo(() => {

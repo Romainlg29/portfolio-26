@@ -282,18 +282,18 @@ const Terrain: FC<{
     },
   });
 
-  const bounds = useMemo(() => {
-    if (!meshRef.current) return null;
+  // const bounds = useMemo(() => {
+  //   if (!meshRef.current) return null;
 
-    // Create a bounding box for the terrain mesh
-    const box = new Box3();
-    box.setFromObject(meshRef.current);
+  //   // Create a bounding box for the terrain mesh
+  //   const box = new Box3();
+  //   box.setFromObject(meshRef.current);
 
-    return {
-      min: [box.min.x, box.min.y, box.min.z],
-      max: [box.max.x, box.max.y, box.max.z],
-    };
-  }, []);
+  //   return {
+  //     min: [box.min.x, box.min.y, box.min.z],
+  //     max: [box.max.x, box.max.y, box.max.z],
+  //   };
+  // }, []);
 
   // Expose the sampler to the parent component
   useEffect(() => {

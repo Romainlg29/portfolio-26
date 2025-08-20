@@ -20,6 +20,7 @@ type TileContextType = {
 const TileContext = createContext<TileContextType | null>(null);
 
 // Hook to use the tile context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTile = () => {
   const context = use(TileContext);
   if (!context) {

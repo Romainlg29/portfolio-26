@@ -1,10 +1,9 @@
 import { useGLTF, useTexture } from "@react-three/drei";
 import { useEffect, useMemo, useRef, type FC } from "react";
 import {
-  Color,
   DoubleSide,
-  MeshStandardMaterial,
   MeshToonMaterial,
+  Texture,
   Vector2,
   type InstancedMesh,
   type Matrix4,
@@ -66,8 +65,8 @@ const InstancedPeriwinkles: FC<InstancedPeriwinklesProps> = ({
       side: DoubleSide,
     });
 
-    m.map = color;
-    m.map.flipY = false;
+    (m as typeof m & { map: Texture }).map = color;
+    (m as typeof m & { map: Texture }).map.flipY = false;
 
     return m;
   }, [color]);

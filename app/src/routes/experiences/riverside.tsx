@@ -1,6 +1,5 @@
 import {
   OrbitControls,
-  RoundedBox,
   useGLTF,
   useHelper,
   useTexture,
@@ -8,16 +7,13 @@ import {
 import { Canvas } from "@react-three/fiber";
 import { createFileRoute } from "@tanstack/react-router";
 import { useControls } from "leva";
-import { useEffect, useMemo, useRef, useState, type FC } from "react";
+import { useEffect, useRef, type FC } from "react";
 import {
-  Color,
   DirectionalLight,
   DirectionalLightHelper,
   Mesh,
   MeshStandardMaterial,
 } from "three";
-import CustomShaderMaterial from "three-custom-shader-material/vanilla";
-import { MeshSurfaceSampler } from "three-stdlib";
 import { Perf } from "r3f-perf";
 
 const lights_options = {
@@ -85,8 +81,6 @@ const Lights = () => {
 };
 
 const Index = () => {
-  const [sampler, setSampler] = useState<MeshSurfaceSampler | null>(null);
-
   const { performance } = useControls("Performance", {
     performance: false,
   });
