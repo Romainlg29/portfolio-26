@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 RUN bun i
 
-RUN bun run build
+RUN bun --bun run build
 
 FROM nginx:1.27 as runtime
 WORKDIR /app
