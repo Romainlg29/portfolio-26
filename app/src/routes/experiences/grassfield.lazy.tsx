@@ -157,7 +157,7 @@ const Index = () => {
 
         <Cloud
           url="/textures/skys/clouds/cloud_2.webp"
-          position={[100, 50, -120]}
+          position={[100, 55, -120]}
           scale={[100, 100, 1]}
         />
 
