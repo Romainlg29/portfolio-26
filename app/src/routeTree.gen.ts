@@ -14,7 +14,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExperiencesRiversideRouteImport } from './routes/experiences/riverside'
 
-const ExperiencesWaterLazyRouteImport = createFileRoute('/experiences/water')()
+const ExperiencesWaterFbmLazyRouteImport = createFileRoute(
+  '/experiences/water-fbm',
+)()
 const ExperiencesGrassfieldLazyRouteImport = createFileRoute(
   '/experiences/grassfield',
 )()
@@ -26,12 +28,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExperiencesWaterLazyRoute = ExperiencesWaterLazyRouteImport.update({
-  id: '/experiences/water',
-  path: '/experiences/water',
+const ExperiencesWaterFbmLazyRoute = ExperiencesWaterFbmLazyRouteImport.update({
+  id: '/experiences/water-fbm',
+  path: '/experiences/water-fbm',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() =>
-  import('./routes/experiences/water.lazy').then((d) => d.Route),
+  import('./routes/experiences/water-fbm.lazy').then((d) => d.Route),
 )
 const ExperiencesGrassfieldLazyRoute =
   ExperiencesGrassfieldLazyRouteImport.update({
@@ -67,7 +69,7 @@ export interface FileRoutesByFullPath {
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
   '/experiences/grassfield': typeof ExperiencesGrassfieldLazyRoute
-  '/experiences/water': typeof ExperiencesWaterLazyRoute
+  '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,7 +77,7 @@ export interface FileRoutesByTo {
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
   '/experiences/grassfield': typeof ExperiencesGrassfieldLazyRoute
-  '/experiences/water': typeof ExperiencesWaterLazyRoute
+  '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -84,7 +86,7 @@ export interface FileRoutesById {
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
   '/experiences/grassfield': typeof ExperiencesGrassfieldLazyRoute
-  '/experiences/water': typeof ExperiencesWaterLazyRoute
+  '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -94,7 +96,7 @@ export interface FileRouteTypes {
     | '/experiences/bush'
     | '/experiences/grass'
     | '/experiences/grassfield'
-    | '/experiences/water'
+    | '/experiences/water-fbm'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -102,7 +104,7 @@ export interface FileRouteTypes {
     | '/experiences/bush'
     | '/experiences/grass'
     | '/experiences/grassfield'
-    | '/experiences/water'
+    | '/experiences/water-fbm'
   id:
     | '__root__'
     | '/'
@@ -110,7 +112,7 @@ export interface FileRouteTypes {
     | '/experiences/bush'
     | '/experiences/grass'
     | '/experiences/grassfield'
-    | '/experiences/water'
+    | '/experiences/water-fbm'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,7 +121,7 @@ export interface RootRouteChildren {
   ExperiencesBushLazyRoute: typeof ExperiencesBushLazyRoute
   ExperiencesGrassLazyRoute: typeof ExperiencesGrassLazyRoute
   ExperiencesGrassfieldLazyRoute: typeof ExperiencesGrassfieldLazyRoute
-  ExperiencesWaterLazyRoute: typeof ExperiencesWaterLazyRoute
+  ExperiencesWaterFbmLazyRoute: typeof ExperiencesWaterFbmLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -131,11 +133,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/experiences/water': {
-      id: '/experiences/water'
-      path: '/experiences/water'
-      fullPath: '/experiences/water'
-      preLoaderRoute: typeof ExperiencesWaterLazyRouteImport
+    '/experiences/water-fbm': {
+      id: '/experiences/water-fbm'
+      path: '/experiences/water-fbm'
+      fullPath: '/experiences/water-fbm'
+      preLoaderRoute: typeof ExperiencesWaterFbmLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/experiences/grassfield': {
@@ -175,7 +177,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExperiencesBushLazyRoute: ExperiencesBushLazyRoute,
   ExperiencesGrassLazyRoute: ExperiencesGrassLazyRoute,
   ExperiencesGrassfieldLazyRoute: ExperiencesGrassfieldLazyRoute,
-  ExperiencesWaterLazyRoute: ExperiencesWaterLazyRoute,
+  ExperiencesWaterFbmLazyRoute: ExperiencesWaterFbmLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,17 +1,25 @@
 uniform float uTime;
 
-uniform float uCameraNear;
-uniform float uCameraFar;
+uniform vec3 uFoamColor;
+uniform vec3 uWaterColor;
+uniform float uWaveHeight;
 
 varying vec2 vUv;
-
-float readDepth(sampler2D depthSampler, vec2 coord) {
-    float fragCoordZ = texture2D(depthSampler, coord).x;
-    float viewZ = perspectiveDepthToViewZ(fragCoordZ, uCameraNear, uCameraFar);
-    return viewZToOrthographicDepth(viewZ, uCameraNear, uCameraFar);
-}
+varying vec3 vCSMPosition;
+varying float vNoise;
 
 void main() {
-    // Display the depths
-    csm_DiffuseColor = vec4(1., 1., 1., 1.0);
+    // Normalize the Z position between 0 and 1
+    float z = clamp(vCSMPosition.z, .0, uWaveHeight);
+
+    // Mix the foam and water colors based on the Z position
+    vec3 color = mix(uFoamColor, uWaterColor, z);
+
+    // Interpolate the opacity based on the Z position
+    float opacity = 1. - smoothstep(uWaveHeight, 0.0, z);
+
+    csm_DiffuseColor = vec4(color, opacity + .9);
+
+    // Boost the emissive color based on the wave height
+    csm_Emissive = uFoamColor * z * 10.;
 }
