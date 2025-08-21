@@ -13,12 +13,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExperiencesRiversideRouteImport } from './routes/experiences/riverside'
+import { Route as ExperiencesGrassfieldRouteImport } from './routes/experiences/grassfield'
 
 const ExperiencesWaterFbmLazyRouteImport = createFileRoute(
   '/experiences/water-fbm',
-)()
-const ExperiencesGrassfieldLazyRouteImport = createFileRoute(
-  '/experiences/grassfield',
 )()
 const ExperiencesGrassLazyRouteImport = createFileRoute('/experiences/grass')()
 const ExperiencesBushLazyRouteImport = createFileRoute('/experiences/bush')()
@@ -35,14 +33,6 @@ const ExperiencesWaterFbmLazyRoute = ExperiencesWaterFbmLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/experiences/water-fbm.lazy').then((d) => d.Route),
 )
-const ExperiencesGrassfieldLazyRoute =
-  ExperiencesGrassfieldLazyRouteImport.update({
-    id: '/experiences/grassfield',
-    path: '/experiences/grassfield',
-    getParentRoute: () => rootRouteImport,
-  } as any).lazy(() =>
-    import('./routes/experiences/grassfield.lazy').then((d) => d.Route),
-  )
 const ExperiencesGrassLazyRoute = ExperiencesGrassLazyRouteImport.update({
   id: '/experiences/grass',
   path: '/experiences/grass',
@@ -62,65 +52,70 @@ const ExperiencesRiversideRoute = ExperiencesRiversideRouteImport.update({
   path: '/experiences/riverside',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExperiencesGrassfieldRoute = ExperiencesGrassfieldRouteImport.update({
+  id: '/experiences/grassfield',
+  path: '/experiences/grassfield',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/experiences/grassfield': typeof ExperiencesGrassfieldRoute
   '/experiences/riverside': typeof ExperiencesRiversideRoute
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
-  '/experiences/grassfield': typeof ExperiencesGrassfieldLazyRoute
   '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/experiences/grassfield': typeof ExperiencesGrassfieldRoute
   '/experiences/riverside': typeof ExperiencesRiversideRoute
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
-  '/experiences/grassfield': typeof ExperiencesGrassfieldLazyRoute
   '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/experiences/grassfield': typeof ExperiencesGrassfieldRoute
   '/experiences/riverside': typeof ExperiencesRiversideRoute
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
-  '/experiences/grassfield': typeof ExperiencesGrassfieldLazyRoute
   '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/experiences/grassfield'
     | '/experiences/riverside'
     | '/experiences/bush'
     | '/experiences/grass'
-    | '/experiences/grassfield'
     | '/experiences/water-fbm'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/experiences/grassfield'
     | '/experiences/riverside'
     | '/experiences/bush'
     | '/experiences/grass'
-    | '/experiences/grassfield'
     | '/experiences/water-fbm'
   id:
     | '__root__'
     | '/'
+    | '/experiences/grassfield'
     | '/experiences/riverside'
     | '/experiences/bush'
     | '/experiences/grass'
-    | '/experiences/grassfield'
     | '/experiences/water-fbm'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExperiencesGrassfieldRoute: typeof ExperiencesGrassfieldRoute
   ExperiencesRiversideRoute: typeof ExperiencesRiversideRoute
   ExperiencesBushLazyRoute: typeof ExperiencesBushLazyRoute
   ExperiencesGrassLazyRoute: typeof ExperiencesGrassLazyRoute
-  ExperiencesGrassfieldLazyRoute: typeof ExperiencesGrassfieldLazyRoute
   ExperiencesWaterFbmLazyRoute: typeof ExperiencesWaterFbmLazyRoute
 }
 
@@ -138,13 +133,6 @@ declare module '@tanstack/react-router' {
       path: '/experiences/water-fbm'
       fullPath: '/experiences/water-fbm'
       preLoaderRoute: typeof ExperiencesWaterFbmLazyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/experiences/grassfield': {
-      id: '/experiences/grassfield'
-      path: '/experiences/grassfield'
-      fullPath: '/experiences/grassfield'
-      preLoaderRoute: typeof ExperiencesGrassfieldLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/experiences/grass': {
@@ -168,15 +156,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExperiencesRiversideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/experiences/grassfield': {
+      id: '/experiences/grassfield'
+      path: '/experiences/grassfield'
+      fullPath: '/experiences/grassfield'
+      preLoaderRoute: typeof ExperiencesGrassfieldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExperiencesGrassfieldRoute: ExperiencesGrassfieldRoute,
   ExperiencesRiversideRoute: ExperiencesRiversideRoute,
   ExperiencesBushLazyRoute: ExperiencesBushLazyRoute,
   ExperiencesGrassLazyRoute: ExperiencesGrassLazyRoute,
-  ExperiencesGrassfieldLazyRoute: ExperiencesGrassfieldLazyRoute,
   ExperiencesWaterFbmLazyRoute: ExperiencesWaterFbmLazyRoute,
 }
 export const routeTree = rootRouteImport

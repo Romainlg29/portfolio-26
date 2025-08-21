@@ -5,7 +5,7 @@ import {
   useTexture,
 } from "@react-three/drei";
 import { Canvas, useFrame, type ThreeElements } from "@react-three/fiber";
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useControls } from "leva";
 import { useMemo, useRef, type FC } from "react";
 import { DirectionalLight, DirectionalLightHelper, Mesh } from "three";
@@ -17,6 +17,7 @@ import EverlastingTile from "@/components/tiles/everlasting-tile";
 import PeriwinklesTile from "@/components/tiles/periwinkles-tile";
 import SimpleParticles from "@/components/particles/SimpleParticles";
 import BaseTerrain from "@/components/terrains/base-terrain";
+import { z } from "zod";
 
 const lights_options = {
   helper: false,
@@ -81,7 +82,13 @@ const Cloud: FC<
 };
 
 const Lights = () => {
-  const { helper } = useControls("Lights", lights_options);
+  // Use the search parameters to control the performance and orbit controls
+  const search = useSearch({ from: "/experiences/grassfield" });
+
+  const { helper } = useControls("Lights", lights_options, {
+    // Only render the performance controls if debug is set in the search params
+    render: () => search.debug !== undefined,
+  });
 
   // Create a reference for the directional light
   const directionalLightRef = useRef<DirectionalLight>(null!);
@@ -103,10 +110,20 @@ const Lights = () => {
 };
 
 const Index = () => {
-  const { performance, orbit } = useControls("Performance", {
-    performance: false,
-    orbit: false,
-  });
+  // Use the search parameters to control the performance and orbit controls
+  const search = useSearch({ from: "/experiences/grassfield" });
+
+  const { performance, orbit } = useControls(
+    "Performance",
+    {
+      performance: false,
+      orbit: false,
+    },
+    {
+      // Only render the performance controls if debug is set in the search params
+      render: () => search.debug !== undefined,
+    }
+  );
 
   return (
     <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
@@ -167,6 +184,11 @@ const Index = () => {
   );
 };
 
-export const Route = createLazyFileRoute("/experiences/grassfield")({
+const search_params = z.object({
+  debug: z.any().optional(),
+});
+
+export const Route = createFileRoute("/experiences/grassfield")({
   component: Index,
+  validateSearch: (search) => search_params.parse(search),
 });
