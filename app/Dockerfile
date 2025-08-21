@@ -6,7 +6,7 @@ RUN bun i
 
 RUN bun --bun run build
 
-FROM nginx:1.27 as runtime
+FROM nginx:alpine as runtime
 WORKDIR /app
 
 COPY --from=builder /app/dist /usr/share/nginx/html
