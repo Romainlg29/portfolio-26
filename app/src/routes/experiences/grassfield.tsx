@@ -1,9 +1,4 @@
-import {
-  OrbitControls,
-  PerspectiveCamera,
-  useHelper,
-  useTexture,
-} from "@react-three/drei";
+import { OrbitControls, useHelper, useTexture } from "@react-three/drei";
 import { Canvas, useFrame, type ThreeElements } from "@react-three/fiber";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useControls } from "leva";
@@ -110,14 +105,16 @@ const Lights = () => {
   );
 };
 
-const Index = () => {
+import { useEffect, useState } from "react";
+import { PerspectiveCamera as DreiPerspectiveCamera } from "@react-three/drei";
+import { PerspectiveCamera as ThreePerspectiveCamera } from "three";
+const Camera = () => {
   // Use the search parameters to control the performance and orbit controls
   const search = useSearch({ from: "/experiences/grassfield" });
 
-  const { performance, orbit } = useControls(
-    "Performance",
+  const { orbit } = useControls(
+    "Camera",
     {
-      performance: false,
       orbit: false,
     },
     {
@@ -126,24 +123,114 @@ const Index = () => {
     }
   );
 
-  useAmbientSound("/sounds/ambient/grassfield.wav", {volume: .2});
+  // Store the pointer position
+  const [pointer, setPointer] = useState({ x: 0.5, y: 0.5 });
+
+  // Camera ref
+  const cameraRef = useRef<ThreePerspectiveCamera>(null!);
+
+  useEffect(() => {
+    const onPointerMove = (e: PointerEvent | TouchEvent) => {
+      let x = 0.5;
+      let y = 0.5;
+
+      // Mobile
+      if ("touches" in e && e.touches.length > 0) {
+        x = e.touches[0].clientX / window.innerWidth;
+        y = e.touches[0].clientY / window.innerHeight;
+      }
+
+      // Desktop
+      else if ("clientX" in e && typeof e.clientX === "number") {
+        x = e.clientX / window.innerWidth;
+        y = e.clientY / window.innerHeight;
+      }
+
+      // Update the pointer position
+      setPointer({ x, y });
+    };
+
+    // Listen for pointer events on the global window
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("touchmove", onPointerMove);
+
+    // Clean up
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("touchmove", onPointerMove);
+    };
+  }, []);
+
+  // Default camera position
+  const defaultPos = [0, 5, 100];
+  // How much the camera can move from the center
+  const maxOffset = { x: 5, y: 1.2 };
+
+  // Smoothly interpolate camera position
+  useFrame(() => {
+    if (!cameraRef.current) return;
+
+    // Calculate offset from pointer (centered at 0.5,0.5)
+    const dx = (0.5 - pointer.x) * 2 * maxOffset.x;
+
+    // Invert y: positive pointer.y moves camera up
+    const dy = (pointer.y - 0.5) * 2 * maxOffset.y;
+
+    // Target position
+    const target = [defaultPos[0] + dx, defaultPos[1] + dy, defaultPos[2]] as [
+      number,
+      number,
+      number,
+    ];
+
+    // Smooth lerp
+    cameraRef.current.position.lerp(
+      { x: target[0], y: target[1], z: target[2] },
+      0.08
+    );
+
+    cameraRef.current.lookAt(0, 0, 0);
+  });
+
+  if (orbit) return <OrbitControls />;
+
+  return (
+    <DreiPerspectiveCamera
+      ref={cameraRef}
+      makeDefault
+      position={defaultPos as [number, number, number]}
+      fov={50}
+    />
+  );
+};
+
+const Index = () => {
+  // Use the search parameters to control the performance and orbit controls
+  const search = useSearch({ from: "/experiences/grassfield" });
+
+  const { performance } = useControls(
+    "Performance",
+    {
+      performance: false,
+    },
+    {
+      // Only render the performance controls if debug is set in the search params
+      render: () => search.debug !== undefined,
+    }
+  );
+
+  useAmbientSound("/sounds/ambient/grassfield.wav", { volume: 0.2 });
 
   return (
     <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
       <Canvas shadows className="w-full h-full">
-        {orbit ? (
-          <OrbitControls  />
-        ) : (
-          <PerspectiveCamera makeDefault position={[0, 5, 100]} fov={50} />
-        )}
-
+        <Camera />
         <Lights />
 
         <BaseTerrain url="/models/grassfield_v2.glb">
-
           <Tile node="grassfield_verynear" color="#17640f">
             <GrassTile instances={500} size={20} />
-            
+
             <PoppiesTile instances={50} size={0.025} />
             <EverlastingTile instances={50} size={0.01} />
             <PeriwinklesTile instances={50} size={0.01} />
@@ -193,8 +280,8 @@ const Index = () => {
 
         <Cloud
           url="/textures/skys/clouds/cloud_2.webp"
-          position={[100, 55, -120]}
-          scale={[100, 100, 1]}
+          position={[100, 70, -280]}
+          scale={[125, 125, 1]}
         />
 
         {performance ? <Perf position="top-left" /> : null}

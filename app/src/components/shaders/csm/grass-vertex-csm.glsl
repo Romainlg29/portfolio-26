@@ -69,7 +69,7 @@ bool isInsideFrustum(vec4 clipSpacePos) {
     vec3 ndc = clipSpacePos.xyz / clipSpacePos.w;
 
     // Add margin to prevent grass from popping at frustum edges
-    float margin = 0.2; // Adjust this value to increase/decrease margin
+    float margin = 0.5; // Adjust this value to increase/decrease margin
     float minBound = -1.0 - margin;
     float maxBound = 1.0 + margin;
 
