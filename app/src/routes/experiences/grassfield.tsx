@@ -18,6 +18,7 @@ import PeriwinklesTile from "@/components/tiles/periwinkles-tile";
 import SimpleParticles from "@/components/particles/SimpleParticles";
 import BaseTerrain from "@/components/terrains/base-terrain";
 import { z } from "zod";
+import { useAmbientSound } from "@/hooks/useAmbientSound";
 
 const lights_options = {
   helper: false,
@@ -125,6 +126,8 @@ const Index = () => {
     }
   );
 
+  useAmbientSound("/sounds/ambient/grassfield.wav", {volume: .2});
+
   return (
     <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
       <Canvas shadows className="w-full h-full">
@@ -136,26 +139,31 @@ const Index = () => {
 
         <Lights />
 
-        <BaseTerrain url="/models/grassfield.glb">
+        <BaseTerrain url="/models/grassfield_v2.glb">
           <Tile node="grassfield_near" color="#17640f">
-            <GrassTile instances={2_000} size={20} />
+            <GrassTile instances={1_500} size={20} />
             <PoppiesTile instances={200} size={0.025} />
             <EverlastingTile instances={200} size={0.01} />
             <PeriwinklesTile instances={200} size={0.01} />
           </Tile>
           <Tile node="grassfield_medium" color="#17640f">
-            <GrassTile instances={1_500} size={30} />
+            <GrassTile instances={500} size={30} />
 
             <PoppiesTile instances={50} size={0.03} />
             <EverlastingTile instances={50} size={0.02} />
             <PeriwinklesTile instances={50} size={0.02} />
           </Tile>
-          <Tile node="grassfield_far" color="#17640f">
-            <GrassTile instances={1_500} size={40} />
 
-            <PoppiesTile instances={50} size={0.04} />
-            <EverlastingTile instances={50} size={0.02} />
-            <PeriwinklesTile instances={50} size={0.02} />
+          <Tile node="grassfield_far" color="#17640f">
+            <GrassTile instances={1000} size={45} />
+
+            <PoppiesTile instances={50} size={0.05} />
+            <EverlastingTile instances={50} size={0.03} />
+            <PeriwinklesTile instances={50} size={0.03} />
+          </Tile>
+
+          <Tile node="grassfield_far001" color="#17640f">
+            <GrassTile instances={800} size={50} />
           </Tile>
         </BaseTerrain>
 
