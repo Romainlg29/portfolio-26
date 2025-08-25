@@ -132,7 +132,7 @@ const Index = () => {
     <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
       <Canvas shadows className="w-full h-full">
         {orbit ? (
-          <OrbitControls />
+          <OrbitControls  />
         ) : (
           <PerspectiveCamera makeDefault position={[0, 5, 100]} fov={50} />
         )}
@@ -140,12 +140,23 @@ const Index = () => {
         <Lights />
 
         <BaseTerrain url="/models/grassfield_v2.glb">
-          <Tile node="grassfield_near" color="#17640f">
-            <GrassTile instances={1_500} size={20} />
-            <PoppiesTile instances={200} size={0.025} />
-            <EverlastingTile instances={200} size={0.01} />
-            <PeriwinklesTile instances={200} size={0.01} />
+
+          <Tile node="grassfield_verynear" color="#17640f">
+            <GrassTile instances={500} size={20} />
+            
+            <PoppiesTile instances={50} size={0.025} />
+            <EverlastingTile instances={50} size={0.01} />
+            <PeriwinklesTile instances={50} size={0.01} />
           </Tile>
+
+          <Tile node="grassfield_near" color="#17640f">
+            <GrassTile instances={500} size={20} />
+
+            <PoppiesTile instances={100} size={0.025} />
+            <EverlastingTile instances={100} size={0.01} />
+            <PeriwinklesTile instances={100} size={0.01} />
+          </Tile>
+
           <Tile node="grassfield_medium" color="#17640f">
             <GrassTile instances={500} size={30} />
 

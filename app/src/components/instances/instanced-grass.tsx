@@ -22,7 +22,7 @@ const grass_options = {
   // Parameters
   uWindStrength: 0.6,
   uNoiseScale: 0.01,
-  uMaxDistance: 200,
+  uMaxDistance: 250,
   uMaxDisplacementDistance: 75,
 };
 

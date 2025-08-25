@@ -1,6 +1,6 @@
 import Scene from "@/components/scene/base-scene";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 const Index = () => {
   return (
@@ -17,5 +17,9 @@ const Index = () => {
 };
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    // Redirect to grass field for now
+    throw redirect({to: "/experiences/grassfield"})
+  },
   component: Index,
 });
