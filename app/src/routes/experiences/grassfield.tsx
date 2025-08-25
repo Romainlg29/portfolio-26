@@ -108,6 +108,7 @@ const Lights = () => {
 import { useEffect, useState } from "react";
 import { PerspectiveCamera as DreiPerspectiveCamera } from "@react-three/drei";
 import { PerspectiveCamera as ThreePerspectiveCamera } from "three";
+import { useDeviceOrientationPermission } from "@/hooks/useDeviceOrientationPermission";
 const Camera = () => {
   // Use the search parameters to control the performance and orbit controls
   const search = useSearch({ from: "/experiences/grassfield" });
@@ -130,36 +131,48 @@ const Camera = () => {
   const cameraRef = useRef<ThreePerspectiveCamera>(null!);
 
   useEffect(() => {
-    const onPointerMove = (e: PointerEvent | TouchEvent) => {
-      let x = 0.5;
-      let y = 0.5;
-
-      // Mobile
-      if ("touches" in e && e.touches.length > 0) {
-        x = e.touches[0].clientX / window.innerWidth;
-        y = e.touches[0].clientY / window.innerHeight;
+    // Use pointer for desktop, gyroscope for mobile
+    const onPointerMove = (e: PointerEvent) => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      // Only update if not on mobile
+      if (!window.matchMedia("(pointer: coarse)").matches) {
+        setPointer({ x, y });
       }
-
-      // Desktop
-      else if ("clientX" in e && typeof e.clientX === "number") {
-        x = e.clientX / window.innerWidth;
-        y = e.clientY / window.innerHeight;
-      }
-
-      // Update the pointer position
-      setPointer({ x, y });
     };
 
-    // Listen for pointer events on the global window
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("touchmove", onPointerMove);
+    // Gyroscope for mobile
+    const onDeviceOrientation = (e: DeviceOrientationEvent) => {
+      // gamma: left/right (-90 to 90), beta: up/down (-180 to 180)
+      // We'll map gamma to x, beta to y
+      // Clamp to [-10, 10] for high sensitivity
+      const gamma = Math.max(-10, Math.min(10, e.gamma ?? 0));
+      const beta = Math.max(-10, Math.min(10, e.beta ?? 0));
+      // Map gamma [-10, 10] to x [0, 1]
+      const x = 0.5 + gamma / 20;
+      // Map beta [-10, 10] to y [0, 1]
+      const y = 0.5 + beta / 20;
+      // Clamp x/y to [0,1] just in case
+      const xClamped = Math.max(0, Math.min(1, x));
+      const yClamped = Math.max(0, Math.min(1, y));
 
-    // Clean up
+      // Only update if on mobile
+      if (window.matchMedia("(pointer: coarse)").matches) {
+        setPointer({ x: xClamped, y: yClamped });
+      }
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("deviceorientation", onDeviceOrientation);
+
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("touchmove", onPointerMove);
+      window.removeEventListener("deviceorientation", onDeviceOrientation);
     };
   }, []);
+
+  // Ask for device orientation permission on IOS
+  useDeviceOrientationPermission();
 
   // Default camera position
   const defaultPos = [0, 5, 100];
