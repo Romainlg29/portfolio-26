@@ -1,9 +1,20 @@
-import { OrbitControls, useHelper, useTexture } from "@react-three/drei";
+import {
+  OrbitControls,
+  useHelper,
+  useTexture,
+  PerspectiveCamera as DreiPerspectiveCamera,
+  useGLTF,
+} from "@react-three/drei";
 import { Canvas, useFrame, type ThreeElements } from "@react-three/fiber";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useControls } from "leva";
-import { useMemo, useRef, type FC } from "react";
-import { DirectionalLight, DirectionalLightHelper, Mesh } from "three";
+import { useMemo, useRef, useEffect, useState, type FC, Suspense } from "react";
+import {
+  DirectionalLight,
+  DirectionalLightHelper,
+  Mesh,
+  PerspectiveCamera as ThreePerspectiveCamera,
+} from "three";
 import { Perf } from "r3f-perf";
 import Tile from "@/components/tiles/tile";
 import GrassTile from "@/components/tiles/grass-tile";
@@ -14,6 +25,7 @@ import SimpleParticles from "@/components/particles/SimpleParticles";
 import BaseTerrain from "@/components/terrains/base-terrain";
 import { z } from "zod";
 import { useAmbientSound } from "@/hooks/useAmbientSound";
+import { useDeviceOrientationPermission } from "@/hooks/useDeviceOrientationPermission";
 
 const lights_options = {
   helper: false,
@@ -77,6 +89,21 @@ const Cloud: FC<
   );
 };
 
+const Tent: FC<ThreeElements["group"]> = (props) => {
+  const { nodes } = useGLTF("/models/objects/tent.glb", true);
+
+  return (
+    <group {...props}>
+      <primitive object={nodes["tent"]}>
+        <meshStandardMaterial color="#ff0000" />
+      </primitive>
+      <primitive object={nodes["tent_entrance"]}>
+        <meshStandardMaterial color="brown" />
+      </primitive>
+    </group>
+  );
+};
+
 const Lights = () => {
   // Use the search parameters to control the performance and orbit controls
   const search = useSearch({ from: "/experiences/grassfield" });
@@ -105,10 +132,6 @@ const Lights = () => {
   );
 };
 
-import { useEffect, useState } from "react";
-import { PerspectiveCamera as DreiPerspectiveCamera } from "@react-three/drei";
-import { PerspectiveCamera as ThreePerspectiveCamera } from "three";
-import { useDeviceOrientationPermission } from "@/hooks/useDeviceOrientationPermission";
 const Camera = () => {
   // Use the search parameters to control the performance and orbit controls
   const search = useSearch({ from: "/experiences/grassfield" });
@@ -244,33 +267,41 @@ const Index = () => {
           <Tile node="grassfield_verynear" color="#17640f">
             <GrassTile instances={500} size={20} />
 
-            <PoppiesTile instances={50} size={0.025} />
-            <EverlastingTile instances={50} size={0.01} />
-            <PeriwinklesTile instances={50} size={0.01} />
+            <Suspense>
+              <PoppiesTile instances={50} size={0.025} />
+              <EverlastingTile instances={50} size={0.01} />
+              <PeriwinklesTile instances={50} size={0.01} />
+            </Suspense>
           </Tile>
 
           <Tile node="grassfield_near" color="#17640f">
             <GrassTile instances={500} size={20} />
 
-            <PoppiesTile instances={100} size={0.025} />
-            <EverlastingTile instances={100} size={0.01} />
-            <PeriwinklesTile instances={100} size={0.01} />
+            <Suspense>
+              <PoppiesTile instances={100} size={0.025} />
+              <EverlastingTile instances={100} size={0.01} />
+              <PeriwinklesTile instances={100} size={0.01} />
+            </Suspense>
           </Tile>
 
           <Tile node="grassfield_medium" color="#17640f">
             <GrassTile instances={500} size={30} />
 
-            <PoppiesTile instances={50} size={0.03} />
-            <EverlastingTile instances={50} size={0.02} />
-            <PeriwinklesTile instances={50} size={0.02} />
+            <Suspense>
+              <PoppiesTile instances={50} size={0.03} />
+              <EverlastingTile instances={50} size={0.02} />
+              <PeriwinklesTile instances={50} size={0.02} />
+            </Suspense>
           </Tile>
 
           <Tile node="grassfield_far" color="#17640f">
             <GrassTile instances={1000} size={45} />
 
-            <PoppiesTile instances={50} size={0.05} />
-            <EverlastingTile instances={50} size={0.03} />
-            <PeriwinklesTile instances={50} size={0.03} />
+            <Suspense>
+              <PoppiesTile instances={50} size={0.05} />
+              <EverlastingTile instances={50} size={0.03} />
+              <PeriwinklesTile instances={50} size={0.03} />
+            </Suspense>
           </Tile>
 
           <Tile node="grassfield_far001" color="#17640f">
@@ -285,17 +316,28 @@ const Index = () => {
           limit={[60, 5, 50]}
         />
 
-        <Cloud
-          url="/textures/skys/clouds/cloud_1.webp"
-          position={[-100, 50, -200]}
-          scale={[200, 100, 1]}
-        />
+        <Suspense>
+          <Cloud
+            url="/textures/skys/clouds/cloud_1.webp"
+            position={[-100, 50, -200]}
+            scale={[200, 100, 1]}
+          />
+        </Suspense>
 
-        <Cloud
-          url="/textures/skys/clouds/cloud_2.webp"
-          position={[100, 70, -280]}
-          scale={[125, 125, 1]}
-        />
+        <Suspense>
+          <Cloud
+            url="/textures/skys/clouds/cloud_2.webp"
+            position={[100, 70, -280]}
+            scale={[125, 125, 1]}
+          />
+        </Suspense>
+        <Suspense>
+          <Tent
+            scale={10}
+            rotation={[0, Math.PI / 4, 0]}
+            position={[-15, 0, 10]}
+          />
+        </Suspense>
 
         {performance ? <Perf position="top-left" /> : null}
       </Canvas>
