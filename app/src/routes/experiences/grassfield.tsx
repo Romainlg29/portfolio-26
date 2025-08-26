@@ -235,7 +235,7 @@ const Index = () => {
   useAmbientSound("/sounds/ambient/grassfield.wav", { volume: 0.2 });
 
   return (
-    <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
+    <div className="w-dvw h-lvh flex bg-gradient-to-b from-blue-300 to-white">
       <Canvas shadows className="w-full h-full">
         <Camera />
         <Lights />
