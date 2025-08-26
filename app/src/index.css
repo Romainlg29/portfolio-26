@@ -1,1 +1,38 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: Borel;
+    src: url(/fonts/borel.ttf) format("truetype");
+}
+
+@font-face {
+    font-family: Ropa;
+    src: url(/fonts/ropa.ttf) format("truetype");
+}
+
+@theme {
+    --font-borel: "Borel", sans-serif;
+    --font-ropa: "Ropa", sans-serif;
+
+    --animate-fade-in-bottom: fade-in-bottom 1s ease-in-out;
+
+    @keyframes fade-in-bottom {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+@utility animation-delay-* {
+    animation-delay: --value(integer)ms;
+}
+
+.apply-fill-mode-backwards {
+    animation-fill-mode: backwards;
+}

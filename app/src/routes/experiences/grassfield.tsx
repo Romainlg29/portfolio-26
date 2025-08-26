@@ -132,6 +132,24 @@ const Lights = () => {
   );
 };
 
+const Headline: FC = () => {
+  return (
+    <div className="absolute top-0 left-0 z-10 w-full h-full grid grid-cols-12">
+      <div className="col-span-4 col-start-8 grid grid-rows-12">
+        <div className="row-span-4 row-start-4 flex flex-col justify-center">
+          <h1 className="text-4xl font-bold font-borel text-white animate-fade-in-bottom">
+            Hi, I'm Romain.
+          </h1>
+
+          <p className="text-2xl mt-2 font-ropa text-white animate-fade-in-bottom animation-delay-800 apply-fill-mode-backwards">
+            I'm a software engineer based in Brest, France.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Camera = () => {
   // Use the search parameters to control the performance and orbit controls
   const search = useSearch({ from: "/experiences/grassfield" });
@@ -258,7 +276,7 @@ const Index = () => {
   useAmbientSound("/sounds/ambient/grassfield.wav", { volume: 0.2 });
 
   return (
-    <div className="w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
+    <div className="relative w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
       <Canvas shadows className="w-full h-full">
         <Camera />
         <Lights />
@@ -341,6 +359,8 @@ const Index = () => {
 
         {performance ? <Perf position="top-left" /> : null}
       </Canvas>
+
+      <Headline />
     </div>
   );
 };
