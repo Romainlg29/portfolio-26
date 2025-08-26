@@ -135,8 +135,8 @@ const Lights = () => {
 const Headline: FC = () => {
   return (
     <div className="absolute top-0 left-0 z-10 w-full h-full grid grid-cols-12">
-      <div className="col-span-4 col-start-8 grid grid-rows-12">
-        <div className="row-span-4 row-start-4 flex flex-col justify-center">
+      <div className="col-span-10 col-start-2 md:col-span-4 md:col-start-8 grid grid-rows-12">
+        <div className="row-span-4 row-start-7 md:row-start-4 flex flex-col justify-center">
           <h1 className="text-4xl font-bold font-borel text-white animate-fade-in-bottom">
             Hi, I'm Romain.
           </h1>
@@ -144,6 +144,19 @@ const Headline: FC = () => {
           <p className="text-2xl mt-2 font-ropa text-white animate-fade-in-bottom animation-delay-800 apply-fill-mode-backwards">
             I'm a software engineer based in Brest, France.
           </p>
+
+          <div className="mt-8 flex gap-2">
+            <a href="https://linkedin.com/in/romainlg29/" target="_blank">
+              <button className="px-4 py-1 mt-2 bg-[#0a66c2]/50 hover:bg-[#0a66c2]/60 backdrop-blur-[2px] border border-[#0a66c2]/60 rounded-3xl text-lg font-ropa text-white animate-fade-in-bottom animation-delay-1600 apply-fill-mode-backwards transition-colors cursor-pointer">
+                Linkedin
+              </button>
+            </a>
+            <a href="https://github.com/Romainlg29" target="_blank">
+              <button className="px-4 py-1 mt-2 bg-[#333]/50 hover:bg-[#333]/60 backdrop-blur-[2px] border border-[#333]/60 rounded-3xl text-lg font-ropa text-white animate-fade-in-bottom animation-delay-2000 apply-fill-mode-backwards transition-colors cursor-pointer">
+                GitHub
+              </button>
+            </a>
+          </div>
         </div>
       </div>
     </div>
