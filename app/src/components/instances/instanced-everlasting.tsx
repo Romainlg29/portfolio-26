@@ -33,11 +33,14 @@ const InstancedEverlasting: FC<InstancedEverlastingProps> = ({
   transforms,
 }) => {
   // Load the grass model
-  const { nodes } = useGLTF("/models/natures/everlasting-transformed.glb", true);
+  const { nodes } = useGLTF(
+    "/models/natures/everlasting-transformed.glb",
+    true
+  );
 
   // Load the textures
   const color = useTexture(
-    "/textures/vegetations/everlasting/T_ucvobbbia_1K_B.jpg"
+    "/textures/vegetations/everlasting/T_ucvobbbia_1K_B.webp"
   );
 
   // Store the instanced mesh reference

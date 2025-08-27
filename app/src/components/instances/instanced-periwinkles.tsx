@@ -33,11 +33,14 @@ const InstancedPeriwinkles: FC<InstancedPeriwinklesProps> = ({
   transforms,
 }) => {
   // Load the grass model
-  const { nodes } = useGLTF("/models/natures/periwinkles-transformed.glb", true);
+  const { nodes } = useGLTF(
+    "/models/natures/periwinkles-transformed.glb",
+    true
+  );
 
   // Load the textures
   const color = useTexture(
-    "/textures/vegetations/periwinkles/T_tfclbger_1K_B.jpg"
+    "/textures/vegetations/periwinkles/T_tfclbger_1K_B.webp"
   );
 
   // Store the instanced mesh reference
