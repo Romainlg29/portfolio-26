@@ -33,7 +33,7 @@ const InstancedPeriwinkles: FC<InstancedPeriwinklesProps> = ({
   transforms,
 }) => {
   // Load the grass model
-  const { nodes } = useGLTF("/models/natures/periwinkles.glb", true);
+  const { nodes } = useGLTF("/models/natures/periwinkles-transformed.glb", true);
 
   // Load the textures
   const color = useTexture(
@@ -101,3 +101,5 @@ const InstancedPeriwinkles: FC<InstancedPeriwinklesProps> = ({
 };
 
 export default InstancedPeriwinkles;
+
+useGLTF.preload("/models/natures/periwinkles-transformed.glb", true);

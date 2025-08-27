@@ -126,3 +126,5 @@ const InstancedGrass: FC<InstancedGrassProps> = ({
 };
 
 export default InstancedGrass;
+
+useGLTF.preload("/models/grass.glb", true);

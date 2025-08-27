@@ -33,7 +33,7 @@ const InstancedEverlasting: FC<InstancedEverlastingProps> = ({
   transforms,
 }) => {
   // Load the grass model
-  const { nodes } = useGLTF("/models/natures/everlasting.glb", true);
+  const { nodes } = useGLTF("/models/natures/everlasting-transformed.glb", true);
 
   // Load the textures
   const color = useTexture(
@@ -101,3 +101,5 @@ const InstancedEverlasting: FC<InstancedEverlastingProps> = ({
 };
 
 export default InstancedEverlasting;
+
+useGLTF.preload("/models/natures/everlasting-transformed.glb", true);

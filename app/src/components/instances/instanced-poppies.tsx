@@ -33,7 +33,7 @@ const InstancedPoppies: FC<InstancedPoppiesProps> = ({
   transforms,
 }) => {
   // Load the grass model
-  const { nodes } = useGLTF("/models/natures/poppies.glb", true);
+  const { nodes } = useGLTF("/models/natures/poppies-transformed.glb", true);
 
   // Load the textures
   const color = useTexture("/textures/vegetations/poppy/T_vmcobd0ja_1K_B.jpg");
@@ -99,3 +99,5 @@ const InstancedPoppies: FC<InstancedPoppiesProps> = ({
 };
 
 export default InstancedPoppies;
+
+useGLTF.preload("/models/natures/poppies-transformed.glb", true);

@@ -90,7 +90,7 @@ const Cloud: FC<
 };
 
 const Tent: FC<ThreeElements["group"]> = (props) => {
-  const { nodes } = useGLTF("/models/objects/tent.glb", true);
+  const { nodes } = useGLTF("/models/objects/tent-transformed.glb", true);
 
   return (
     <group {...props}>
@@ -294,7 +294,7 @@ const Index = () => {
         <Camera />
         <Lights />
 
-        <BaseTerrain url="/models/grassfield_v2.glb">
+        <BaseTerrain url="/models/grassfield_v2-transformed.glb">
           <Tile node="grassfield_verynear" color="#17640f">
             <GrassTile instances={500} size={20} />
 
@@ -362,6 +362,7 @@ const Index = () => {
             scale={[125, 125, 1]}
           />
         </Suspense>
+
         <Suspense>
           <Tent
             scale={10}
