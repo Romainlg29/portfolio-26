@@ -1,5 +1,4 @@
 import {
-  OrbitControls,
   useHelper,
   useTexture,
   PerspectiveCamera as DreiPerspectiveCamera,
@@ -8,14 +7,21 @@ import {
 import { Canvas, useFrame, type ThreeElements } from "@react-three/fiber";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useControls } from "leva";
-import { useMemo, useRef, useEffect, useState, type FC, Suspense } from "react";
+import {
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+  type FC,
+  Suspense,
+  lazy,
+} from "react";
 import {
   DirectionalLight,
   DirectionalLightHelper,
   Mesh,
   PerspectiveCamera as ThreePerspectiveCamera,
 } from "three";
-import { Perf } from "r3f-perf";
 import Tile from "@/components/tiles/tile";
 import GrassTile from "@/components/tiles/grass-tile";
 import PoppiesTile from "@/components/tiles/poppies-tile";
@@ -134,7 +140,7 @@ const Lights = () => {
 
 const Headline: FC = () => {
   return (
-    <div className="absolute top-0 left-0 z-10 w-full h-full grid grid-cols-12">
+    <div className="absolute top-0 left-0 z-10 w-full h-full grid grid-cols-12 pointer-events-none">
       <div className="col-span-10 col-start-2 md:col-span-4 md:col-start-8 grid grid-rows-12">
         <div className="row-span-4 row-start-7 md:row-start-4 flex flex-col justify-center">
           <h1 className="text-4xl font-bold font-borel text-white animate-fade-in-bottom">
@@ -146,12 +152,20 @@ const Headline: FC = () => {
           </p>
 
           <div className="mt-8 flex gap-2">
-            <a href="https://linkedin.com/in/romainlg29/" target="_blank">
+            <a
+              href="https://linkedin.com/in/romainlg29/"
+              target="_blank"
+              className="pointer-events-auto"
+            >
               <button className="px-4 py-1 mt-2 bg-[#0a66c2]/50 hover:bg-[#0a66c2]/60 backdrop-blur-[2px] border border-[#0a66c2]/60 rounded-3xl text-lg font-ropa text-white animate-fade-in-bottom animation-delay-1600 apply-fill-mode-backwards transition-colors cursor-pointer">
                 Linkedin
               </button>
             </a>
-            <a href="https://github.com/Romainlg29" target="_blank">
+            <a
+              href="https://github.com/Romainlg29"
+              target="_blank"
+              className="pointer-events-auto"
+            >
               <button className="px-4 py-1 mt-2 bg-[#333]/50 hover:bg-[#333]/60 backdrop-blur-[2px] border border-[#333]/60 rounded-3xl text-lg font-ropa text-white animate-fade-in-bottom animation-delay-2000 apply-fill-mode-backwards transition-colors cursor-pointer">
                 GitHub
               </button>
@@ -162,6 +176,10 @@ const Headline: FC = () => {
     </div>
   );
 };
+
+const OrbitControls = lazy(
+  () => import("@/components/controls/orbit-controls")
+);
 
 const Camera = () => {
   // Use the search parameters to control the performance and orbit controls
@@ -259,7 +277,13 @@ const Camera = () => {
     cameraRef.current.lookAt(0, 0, 0);
   });
 
-  if (orbit) return <OrbitControls />;
+  if (orbit)
+    // Lazy load orbit controls to reduce the initial bundle size
+    return (
+      <Suspense>
+        <OrbitControls />
+      </Suspense>
+    );
 
   return (
     <DreiPerspectiveCamera
@@ -270,6 +294,9 @@ const Camera = () => {
     />
   );
 };
+
+// Lazy
+const Perf = lazy(() => import("@/components/controls/perf"));
 
 const Index = () => {
   // Use the search parameters to control the performance and orbit controls
@@ -371,7 +398,12 @@ const Index = () => {
           />
         </Suspense>
 
-        {performance ? <Perf position="top-left" /> : null}
+        {performance ? (
+          // Only load when needed to reduce initial bundle size
+          <Suspense>
+            <Perf position="top-left" />
+          </Suspense>
+        ) : null}
       </Canvas>
 
       <Headline />
