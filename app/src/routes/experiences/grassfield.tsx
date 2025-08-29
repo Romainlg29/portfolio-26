@@ -95,15 +95,14 @@ const Cloud: FC<
   );
 };
 
-const Mountains: FC<{ url: string } & ThreeElements["mesh"]> = ({
-  url,
-  ...props
-}) => {
+const Mountains: FC<
+  { url: string; aspect?: number } & ThreeElements["mesh"]
+> = ({ url, aspect = 1, ...props }) => {
   const texture = useTexture(url);
 
   return (
     <mesh {...props}>
-      <planeGeometry args={[3.82, 1]} />
+      <planeGeometry args={[aspect, 1]} />
       <meshBasicMaterial map={texture} transparent alphaTest={0.5} />
     </mesh>
   );
@@ -415,6 +414,7 @@ const Index = () => {
         <Suspense>
           <Mountains
             url="/textures/skys/mountains/mountains.webp"
+            aspect={3.82}
             position={[-100, 20, -300]}
             scale={200}
           />
