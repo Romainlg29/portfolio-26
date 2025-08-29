@@ -95,6 +95,20 @@ const Cloud: FC<
   );
 };
 
+const Mountains: FC<{ url: string } & ThreeElements["mesh"]> = ({
+  url,
+  ...props
+}) => {
+  const texture = useTexture(url);
+
+  return (
+    <mesh {...props}>
+      <planeGeometry args={[3.82, 1]} />
+      <meshBasicMaterial map={texture} transparent alphaTest={0.5} />
+    </mesh>
+  );
+};
+
 const Tent: FC<ThreeElements["group"]> = (props) => {
   const { nodes } = useGLTF("/models/objects/tent-transformed.glb", true);
 
@@ -377,15 +391,15 @@ const Index = () => {
         <Suspense>
           <Cloud
             url="/textures/skys/clouds/cloud_1.webp"
-            position={[-100, 50, -200]}
-            scale={[200, 100, 1]}
+            position={[-150, 45, -290]}
+            scale={[100, 50, 1]}
           />
         </Suspense>
 
         <Suspense>
           <Cloud
             url="/textures/skys/clouds/cloud_2.webp"
-            position={[100, 70, -280]}
+            position={[100, 70, -310]}
             scale={[125, 125, 1]}
           />
         </Suspense>
@@ -395,6 +409,14 @@ const Index = () => {
             scale={10}
             rotation={[0, Math.PI / 4, 0]}
             position={[-15, 0, 10]}
+          />
+        </Suspense>
+
+        <Suspense>
+          <Mountains
+            url="/textures/skys/mountains/mountains.webp"
+            position={[-100, 20, -300]}
+            scale={200}
           />
         </Suspense>
 
