@@ -398,7 +398,7 @@ const Index = () => {
         <Suspense>
           <Cloud
             url="/textures/skys/clouds/cloud_2.webp"
-            position={[100, 70, -310]}
+            position={[200, 70, -310]}
             scale={[125, 125, 1]}
           />
         </Suspense>
@@ -415,7 +415,7 @@ const Index = () => {
           <Mountains
             url="/textures/skys/mountains/mountains.webp"
             aspect={3.82}
-            position={[-100, 20, -300]}
+            position={[0, 10, -300]}
             scale={200}
           />
         </Suspense>
