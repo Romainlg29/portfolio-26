@@ -23,26 +23,6 @@ export type Keyframe = {
 };
 
 export const keyframes: Keyframe[] = [
-  // Sunrise
-  {
-    ambientLight: {
-      color: "#FFE4B2",
-      intensity: 0.45,
-    },
-    directionalLight: {
-      color: "#FFD580",
-      intensity: 2.5,
-    },
-    clouds: {
-      brightness: 0.4,
-    },
-    mountains: {
-      brightness: 0.4,
-    },
-    sky: {
-      color: "#818cf8",
-    },
-  },
   // Mid-day
   {
     ambientLight: {
@@ -101,6 +81,26 @@ export const keyframes: Keyframe[] = [
     },
     sky: {
       color: "#4a044e",
+    },
+  },
+  // Sunrise
+  {
+    ambientLight: {
+      color: "#FFE4B2",
+      intensity: 0.45,
+    },
+    directionalLight: {
+      color: "#FFD580",
+      intensity: 2.5,
+    },
+    clouds: {
+      brightness: 0.4,
+    },
+    mountains: {
+      brightness: 0.4,
+    },
+    sky: {
+      color: "#818cf8",
     },
   },
 ];
