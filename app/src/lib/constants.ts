@@ -40,7 +40,7 @@ export const keyframes: Keyframe[] = [
       brightness: 1,
     },
     sky: {
-      color: "#bae6fd",
+      color: "oklch(0.83 0.10 230)",
     },
   },
   // Sunset
@@ -60,7 +60,7 @@ export const keyframes: Keyframe[] = [
       brightness: 0.4,
     },
     sky: {
-      color: "#fb7185",
+      color: "oklch(0.72 0.17 13)",
     },
   },
   // Night
@@ -80,7 +80,7 @@ export const keyframes: Keyframe[] = [
       brightness: 0.05,
     },
     sky: {
-      color: "#4a044e",
+      color: "oklch(0.26 0.09 281)",
     },
   },
   // Sunrise
@@ -100,7 +100,7 @@ export const keyframes: Keyframe[] = [
       brightness: 0.4,
     },
     sky: {
-      color: "#818cf8",
+      color: "oklch(0.42 0.18 266)",
     },
   },
 ];

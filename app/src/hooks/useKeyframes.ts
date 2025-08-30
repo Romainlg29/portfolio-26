@@ -12,16 +12,46 @@ const lerp = (a: number, b: number, t: number) => {
 };
 
 const lerpColor = (a: string, b: string, t: number) => {
-  // Create Color objects from input strings
+  // Fallback: linear RGB interpolation using three.js
   const colorA = new Color(a);
   const colorB = new Color(b);
-
-  // Interpolate between the two colors
   colorA.lerp(colorB, t);
-
-  // Return as CSS color string
   return colorA.getStyle();
 };
+
+// TODO: Use https://culorijs.org/ instead
+// Minimal oklch parser: accepts oklch(l c h) or oklch(l c h / a)
+function parseOklch(str: string) {
+  // Remove 'oklch(' and ')' and split
+  const match = str.match(/oklch\(([^)]+)\)/);
+  if (!match) throw new Error("Invalid oklch string: " + str);
+  const parts = match[1].split("/")[0].trim().split(/\s+/);
+  return {
+    l: parseFloat(parts[0]),
+    c: parseFloat(parts[1]),
+    h: parseFloat(parts[2]),
+  };
+}
+
+function formatOklch({ l, c, h }: { l: number; c: number; h: number }) {
+  // Clamp values for safety
+  l = Math.max(0, Math.min(1, l));
+  c = Math.max(0, c);
+  // h can wrap
+  return `oklch(${l} ${c} ${h})`;
+}
+
+function lerpOklch(a: string, b: string, t: number) {
+  const ca = parseOklch(a);
+  const cb = parseOklch(b);
+  // Interpolate l, c, h (hue wraps around 360)
+  const l = lerp(ca.l, cb.l, t);
+  const c = lerp(ca.c, cb.c, t);
+  let dh = cb.h - ca.h;
+  if (Math.abs(dh) > 180) dh -= Math.sign(dh) * 360;
+  const h = (ca.h + dh * t + 360) % 360;
+  return formatOklch({ l, c, h });
+}
 
 const getKeyframeIndices = (
   elapsed: number,
@@ -71,7 +101,10 @@ const interpolateKeyframes = (
       brightness: lerp(a.mountains.brightness, b.mountains.brightness, t),
     },
     sky: {
-      color: lerpColor(a.sky.color, b.sky.color, t),
+      color:
+        a.sky.color.startsWith("oklch") && b.sky.color.startsWith("oklch")
+          ? lerpOklch(a.sky.color, b.sky.color, t)
+          : lerpColor(a.sky.color, b.sky.color, t),
     },
   };
 
