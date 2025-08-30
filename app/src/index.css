@@ -15,6 +15,8 @@
     --font-ropa: "Ropa", sans-serif;
 
     --animate-fade-in-bottom: fade-in-bottom 1s ease-in-out;
+    --animate-fade-in-left: fade-in-left .5s ease-in-out;
+    --animate-fade-out-left: fade-out-left .5s ease-in-out;
 
     @keyframes fade-in-bottom {
         0% {
@@ -27,6 +29,30 @@
             transform: translateY(0);
         }
     }
+
+    @keyframes fade-in-left {
+        0% {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fade-out-left {
+        0% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+    }
 }
 
 @utility animation-delay-* {
@@ -35,4 +61,8 @@
 
 .apply-fill-mode-backwards {
     animation-fill-mode: backwards;
+}
+
+.apply-fill-mode-forwards {
+    animation-fill-mode: forwards;
 }

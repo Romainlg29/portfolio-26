@@ -3,6 +3,7 @@ import {
   useTexture,
   PerspectiveCamera as DreiPerspectiveCamera,
   useGLTF,
+  Html,
 } from "@react-three/drei";
 import { Canvas, useFrame, type ThreeElements } from "@react-three/fiber";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
@@ -108,18 +109,43 @@ const Mountains: FC<
   );
 };
 
-const Tent: FC<ThreeElements["group"]> = (props) => {
+const Tent: FC<
+  { menuPosition?: [number, number, number] } & ThreeElements["group"]
+> = ({ menuPosition, ...props }) => {
   const { nodes } = useGLTF("/models/objects/tent-transformed.glb", true);
 
+  const [isHovered, setIsHovered] = useState<boolean | undefined>(undefined);
+
   return (
-    <group {...props}>
-      <primitive object={nodes["tent"]}>
-        <meshStandardMaterial color="#ff0000" />
-      </primitive>
-      <primitive object={nodes["tent_entrance"]}>
-        <meshStandardMaterial color="brown" />
-      </primitive>
-    </group>
+    <>
+      <group
+        {...props}
+        onPointerEnter={() => setIsHovered(true)}
+        onPointerLeave={() => setIsHovered(false)}
+        onClick={() => setIsHovered((v) => (v === true ? false : true))}
+      >
+        <primitive object={nodes["tent"]}>
+          <meshStandardMaterial color="#ff0000" />
+        </primitive>
+        <primitive object={nodes["tent_entrance"]}>
+          <meshStandardMaterial color="brown" />
+        </primitive>
+      </group>
+
+      <Html position={menuPosition ?? props.position}>
+        <div
+          className={`bg-amber-200 px-4 py-2 rounded-3xl ${
+            isHovered
+              ? "animate-fade-in-left apply-fill-mode-backwards"
+              : isHovered === false
+                ? "animate-fade-out-left apply-fill-mode-forwards"
+                : "opacity-0"
+          }`}
+        >
+          <h3 className="font-bold text-nowrap">Coming later this year!</h3>
+        </div>
+      </Html>
+    </>
   );
 };
 
@@ -408,6 +434,7 @@ const Index = () => {
             scale={10}
             rotation={[0, Math.PI / 4, 0]}
             position={[-15, 0, 10]}
+            menuPosition={[-10, 10, 10]}
           />
         </Suspense>
 
