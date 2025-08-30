@@ -21,6 +21,7 @@ import {
   DirectionalLight,
   DirectionalLightHelper,
   Mesh,
+  MeshBasicMaterial,
   PerspectiveCamera as ThreePerspectiveCamera,
 } from "three";
 import Tile from "@/components/tiles/tile";
@@ -33,6 +34,10 @@ import BaseTerrain from "@/components/terrains/base-terrain";
 import { z } from "zod";
 import { useAmbientSound } from "@/hooks/useAmbientSound";
 import { useDeviceOrientationPermission } from "@/hooks/useDeviceOrientationPermission";
+import { useKeyframes } from "@/hooks/useKeyframes";
+import CustomShaderMaterial from "three-custom-shader-material/vanilla";
+
+import BrightnessFragment from "@/components/shaders/csm/brightness-fragment-csm.glsl?raw";
 
 const lights_options = {
   helper: false,
@@ -44,9 +49,15 @@ const Cloud: FC<
     // Random seed for animation, default to a random number (0, 1)
     seed?: number;
   } & ThreeElements["mesh"]
-> = ({ url, seed = Math.random(), ...props }) => {
+> = ({ url, seed, ...props }) => {
   // Load the texture for the cloud
   const texture = useTexture(url);
+
+  // Store the material ref to update the uniforms later
+  const materialRef = useRef<CustomShaderMaterial | undefined>(undefined);
+
+  // Store the mesh ref to make them move
+  const ref = useRef<Mesh>(null!);
 
   // Store the initial position of the cloud mesh for animation
   const initialPosition = useMemo<[number, number, number]>(
@@ -56,11 +67,13 @@ const Cloud: FC<
 
   // Generate random animation parameters based on the seed
   const params = useMemo(() => {
+    const s = seed ?? Math.random();
+
     // Use seed to create reproducible random values
-    const r1 = (Math.sin(seed * 12.9898) * 43758.5453) % 1;
-    const r2 = (Math.sin(seed * 78.233) * 43758.5453) % 1;
-    const r3 = (Math.sin(seed * 37.719) * 43758.5453) % 1;
-    const r4 = (Math.sin(seed * 93.989) * 43758.5453) % 1;
+    const r1 = (Math.sin(s * 12.9898) * 43758.5453) % 1;
+    const r2 = (Math.sin(s * 78.233) * 43758.5453) % 1;
+    const r3 = (Math.sin(s * 37.719) * 43758.5453) % 1;
+    const r4 = (Math.sin(s * 93.989) * 43758.5453) % 1;
 
     return {
       // Direction: -1 for left to right, 1 for right to left
@@ -74,8 +87,21 @@ const Cloud: FC<
     };
   }, [seed]);
 
-  // Store the mesh ref to make them move
-  const ref = useRef<Mesh>(null!);
+  // Create the material once and save the ref
+  const material = useMemo(
+    () =>
+      new CustomShaderMaterial({
+        baseMaterial: MeshBasicMaterial,
+        map: texture,
+        transparent: true,
+        alphaTest: 0.5,
+        uniforms: { uBrightness: { value: 1 } },
+        fragmentShader: BrightnessFragment,
+      }),
+    [texture]
+  );
+
+  const { clouds } = useKeyframes();
 
   useFrame(({ clock }) => {
     const elapsed = clock.getElapsedTime();
@@ -86,12 +112,17 @@ const Cloud: FC<
 
     // Apply the movement to the cloud
     ref.current.position.x = initialPosition[0] + offset;
+
+    // Apply the material brightness
+    if (!materialRef.current) return;
+    materialRef.current.uniforms.uBrightness.value = clouds.brightness;
   });
 
   return (
     <mesh {...props} ref={ref}>
       <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial map={texture} transparent alphaTest={0.5} />
+
+      <primitive ref={materialRef} object={material} attach="material" />
     </mesh>
   );
 };
@@ -101,11 +132,41 @@ const Mountains: FC<
 > = ({ url, aspect = 1, ...props }) => {
   const texture = useTexture(url);
 
-  return (
-    <mesh {...props}>
-      <planeGeometry args={[aspect, 1]} />
-      <meshBasicMaterial map={texture} transparent alphaTest={0.5} />
-    </mesh>
+  // Store the material ref to update the uniforms later
+  const materialRef = useRef<CustomShaderMaterial | undefined>(undefined);
+
+  // Create the material once and save the ref
+  const material = useMemo(
+    () =>
+      new CustomShaderMaterial({
+        baseMaterial: MeshBasicMaterial,
+        map: texture,
+        transparent: true,
+        alphaTest: 0.5,
+        uniforms: { uBrightness: { value: 1 } },
+        fragmentShader: BrightnessFragment,
+      }),
+    [texture]
+  );
+
+  const { mountains } = useKeyframes();
+
+  useFrame(() => {
+    if (!materialRef.current) return;
+
+    // Update the uniforms
+    materialRef.current.uniforms.uBrightness.value = mountains.brightness;
+  });
+
+  return useMemo(
+    () => (
+      <mesh {...props}>
+        <planeGeometry args={[aspect, 1]} />
+
+        <primitive ref={materialRef} object={material} attach="material" />
+      </mesh>
+    ),
+    [props, aspect, material]
   );
 };
 
@@ -164,13 +225,20 @@ const Lights = () => {
   // Use the helper to visualize the directional light
   useHelper(helper && directionalLightRef, DirectionalLightHelper, 1, "red");
 
+  const { directionalLight, ambientLight } = useKeyframes();
+
   return (
     <>
-      <ambientLight intensity={0.5} />
+      <ambientLight
+        intensity={ambientLight.intensity}
+        color={ambientLight.color}
+      />
+
       <directionalLight
         ref={directionalLightRef}
         position={[5, 5, 5]}
-        intensity={5}
+        intensity={directionalLight.intensity}
+        color={directionalLight.color}
         castShadow
       />
     </>
@@ -355,7 +423,7 @@ const Index = () => {
   useAmbientSound("/sounds/ambient/grassfield.wav", { volume: 0.2 });
 
   return (
-    <div className="relative w-dvw h-dvh flex bg-gradient-to-b from-blue-300 to-white">
+    <div className="relative w-dvw h-dvh flex bg-gradient-to-b from-[var(--color-sky-background)] to-white">
       <Canvas shadows className="w-full h-full">
         <Camera />
         <Lights />

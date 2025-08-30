@@ -10,6 +10,10 @@
     src: url(/fonts/ropa.ttf) format("truetype");
 }
 
+:root {
+    --color-sky-background: #0a192f;
+}
+
 @theme {
     --font-borel: "Borel", sans-serif;
     --font-ropa: "Ropa", sans-serif;
