@@ -171,11 +171,16 @@ const Mountains: FC<
 };
 
 const Tent: FC<
-  { menuPosition?: [number, number, number] } & ThreeElements["group"]
-> = ({ menuPosition, ...props }) => {
+  {
+    menuPosition?: [number, number, number];
+    lightPosition?: [number, number, number];
+  } & ThreeElements["group"]
+> = ({ menuPosition, lightPosition, ...props }) => {
   const { nodes } = useGLTF("/models/objects/tent-transformed.glb", true);
 
   const [isHovered, setIsHovered] = useState<boolean | undefined>(undefined);
+
+  const { tent } = useKeyframes();
 
   return (
     <>
@@ -192,6 +197,12 @@ const Tent: FC<
           <meshStandardMaterial color="brown" />
         </primitive>
       </group>
+
+      <pointLight
+        position={lightPosition ?? props.position}
+        intensity={1000 * tent.emissiveIntensity}
+        color={"#ff6304"}
+      />
 
       <Html position={menuPosition ?? props.position}>
         <div
@@ -503,6 +514,7 @@ const Index = () => {
             rotation={[0, Math.PI / 4, 0]}
             position={[-15, 0, 10]}
             menuPosition={[-10, 10, 10]}
+            lightPosition={[-10, 15, 30]}
           />
         </Suspense>
 
@@ -514,6 +526,10 @@ const Index = () => {
             scale={200}
           />
         </Suspense>
+
+        {/* <EffectComposer>
+          <Bloom luminanceThreshold={0.5}  />
+        </EffectComposer> */}
 
         {performance ? (
           // Only load when needed to reduce initial bundle size

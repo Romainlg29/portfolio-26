@@ -20,6 +20,10 @@ export type Keyframe = {
   sky: {
     color: string;
   };
+
+  tent: {
+    emissiveIntensity: number;
+  };
 };
 
 export const keyframes: Keyframe[] = [
@@ -42,6 +46,9 @@ export const keyframes: Keyframe[] = [
     sky: {
       color: "oklch(0.83 0.10 230)",
     },
+    tent: {
+      emissiveIntensity: 0,
+    },
   },
   // Sunset
   {
@@ -61,6 +68,9 @@ export const keyframes: Keyframe[] = [
     },
     sky: {
       color: "oklch(0.72 0.17 13)",
+    },
+    tent: {
+      emissiveIntensity: 0,
     },
   },
   // Night
@@ -82,6 +92,9 @@ export const keyframes: Keyframe[] = [
     sky: {
       color: "oklch(0.26 0.09 281)",
     },
+    tent: {
+      emissiveIntensity: 1.5,
+    },
   },
   // Sunrise
   {
@@ -101,6 +114,9 @@ export const keyframes: Keyframe[] = [
     },
     sky: {
       color: "oklch(0.42 0.18 266)",
+    },
+    tent: {
+      emissiveIntensity: .5,
     },
   },
 ];

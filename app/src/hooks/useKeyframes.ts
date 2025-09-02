@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Color } from "three";
 
 // Duration of each keyframe in seconds
-const duration = 60;
+const duration = 20;
 
 const lerp = (a: number, b: number, t: number) => {
   // Linear interpolation between a and b
@@ -106,6 +106,9 @@ const interpolateKeyframes = (
           ? lerpOklch(a.sky.color, b.sky.color, t)
           : lerpColor(a.sky.color, b.sky.color, t),
     },
+    tent: {
+      emissiveIntensity: lerp(a.tent.emissiveIntensity, b.tent.emissiveIntensity, t),
+    }
   };
 
   // Update the sky css var
