@@ -34,10 +34,12 @@ import BaseTerrain from "@/components/terrains/base-terrain";
 import { z } from "zod";
 import { useAmbientSound } from "@/hooks/useAmbientSound";
 import { useDeviceOrientationPermission } from "@/hooks/useDeviceOrientationPermission";
-import { useKeyframes } from "@/hooks/useKeyframes";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 
 import BrightnessFragment from "@/components/shaders/csm/brightness-fragment-csm.glsl?raw";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useKeyframeStore } from "@/stores/useKeyframesStore";
+import Keyframes from "@/components/controls/Keyframes";
 
 const lights_options = {
   helper: false,
@@ -101,7 +103,7 @@ const Cloud: FC<
     [texture]
   );
 
-  const { clouds } = useKeyframes();
+  const { clouds } = useKeyframeStore((s) => s.frame);
 
   useFrame(({ clock }) => {
     const elapsed = clock.getElapsedTime();
@@ -149,7 +151,7 @@ const Mountains: FC<
     [texture]
   );
 
-  const { mountains } = useKeyframes();
+  const { mountains } = useKeyframeStore((s) => s.frame);
 
   useFrame(() => {
     if (!materialRef.current) return;
@@ -176,19 +178,59 @@ const Tent: FC<
     lightPosition?: [number, number, number];
   } & ThreeElements["group"]
 > = ({ menuPosition, lightPosition, ...props }) => {
+  // Load the tent model using draco
   const { nodes } = useGLTF("/models/objects/tent-transformed.glb", true);
 
+  // Track if the tent is hovered or clicked
   const [isHovered, setIsHovered] = useState<boolean | undefined>(undefined);
 
-  const { tent } = useKeyframes();
+  // Track if the user has interacted with the tent to only log once
+  const hasInteracted = useRef<boolean>(false);
+  const analytics = useAnalytics();
+
+  // Use the keyframes to control the tent light intensity
+  const { tent } = useKeyframeStore((s) => s.frame);
+
+  // Handlers
+  const onPointerEnter = () => {
+    setIsHovered(true);
+
+    if (!hasInteracted.current) {
+      // Log the interaction
+      analytics.event("tent-interaction", {
+        category: "engagement",
+        label: "Tent interaction",
+      });
+
+      hasInteracted.current = true;
+    }
+  };
+
+  const onPointerLeave = () => {
+    setIsHovered(false);
+  };
+
+  const onClick = () => {
+    setIsHovered((v) => (v === true ? false : true));
+
+    if (!hasInteracted.current) {
+      // Log the interaction
+      analytics.event("tent-interaction", {
+        category: "engagement",
+        label: "Tent interaction",
+      });
+
+      hasInteracted.current = true;
+    }
+  };
 
   return (
     <>
       <group
         {...props}
-        onPointerEnter={() => setIsHovered(true)}
-        onPointerLeave={() => setIsHovered(false)}
-        onClick={() => setIsHovered((v) => (v === true ? false : true))}
+        onPointerEnter={onPointerEnter}
+        onPointerLeave={onPointerLeave}
+        onClick={onClick}
       >
         <primitive object={nodes["tent"]}>
           <meshStandardMaterial color="#ff0000" />
@@ -236,7 +278,7 @@ const Lights = () => {
   // Use the helper to visualize the directional light
   useHelper(helper && directionalLightRef, DirectionalLightHelper, 1, "red");
 
-  const { directionalLight, ambientLight } = useKeyframes();
+  const { directionalLight, ambientLight } = useKeyframeStore((s) => s.frame);
 
   return (
     <>
@@ -526,6 +568,8 @@ const Index = () => {
             scale={200}
           />
         </Suspense>
+
+        <Keyframes />
 
         {/* <EffectComposer>
           <Bloom luminanceThreshold={0.5}  />

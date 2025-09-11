@@ -18,6 +18,9 @@ import { Route as ExperiencesGrassfieldRouteImport } from './routes/experiences/
 const ExperiencesWaterFbmLazyRouteImport = createFileRoute(
   '/experiences/water-fbm',
 )()
+const ExperiencesRafaleLazyRouteImport = createFileRoute(
+  '/experiences/rafale',
+)()
 const ExperiencesGrassLazyRouteImport = createFileRoute('/experiences/grass')()
 const ExperiencesBushLazyRouteImport = createFileRoute('/experiences/bush')()
 
@@ -32,6 +35,13 @@ const ExperiencesWaterFbmLazyRoute = ExperiencesWaterFbmLazyRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() =>
   import('./routes/experiences/water-fbm.lazy').then((d) => d.Route),
+)
+const ExperiencesRafaleLazyRoute = ExperiencesRafaleLazyRouteImport.update({
+  id: '/experiences/rafale',
+  path: '/experiences/rafale',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() =>
+  import('./routes/experiences/rafale.lazy').then((d) => d.Route),
 )
 const ExperiencesGrassLazyRoute = ExperiencesGrassLazyRouteImport.update({
   id: '/experiences/grass',
@@ -64,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/experiences/riverside': typeof ExperiencesRiversideRoute
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
+  '/experiences/rafale': typeof ExperiencesRafaleLazyRoute
   '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRoutesByTo {
@@ -72,6 +83,7 @@ export interface FileRoutesByTo {
   '/experiences/riverside': typeof ExperiencesRiversideRoute
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
+  '/experiences/rafale': typeof ExperiencesRafaleLazyRoute
   '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRoutesById {
@@ -81,6 +93,7 @@ export interface FileRoutesById {
   '/experiences/riverside': typeof ExperiencesRiversideRoute
   '/experiences/bush': typeof ExperiencesBushLazyRoute
   '/experiences/grass': typeof ExperiencesGrassLazyRoute
+  '/experiences/rafale': typeof ExperiencesRafaleLazyRoute
   '/experiences/water-fbm': typeof ExperiencesWaterFbmLazyRoute
 }
 export interface FileRouteTypes {
@@ -91,6 +104,7 @@ export interface FileRouteTypes {
     | '/experiences/riverside'
     | '/experiences/bush'
     | '/experiences/grass'
+    | '/experiences/rafale'
     | '/experiences/water-fbm'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +113,7 @@ export interface FileRouteTypes {
     | '/experiences/riverside'
     | '/experiences/bush'
     | '/experiences/grass'
+    | '/experiences/rafale'
     | '/experiences/water-fbm'
   id:
     | '__root__'
@@ -107,6 +122,7 @@ export interface FileRouteTypes {
     | '/experiences/riverside'
     | '/experiences/bush'
     | '/experiences/grass'
+    | '/experiences/rafale'
     | '/experiences/water-fbm'
   fileRoutesById: FileRoutesById
 }
@@ -116,6 +132,7 @@ export interface RootRouteChildren {
   ExperiencesRiversideRoute: typeof ExperiencesRiversideRoute
   ExperiencesBushLazyRoute: typeof ExperiencesBushLazyRoute
   ExperiencesGrassLazyRoute: typeof ExperiencesGrassLazyRoute
+  ExperiencesRafaleLazyRoute: typeof ExperiencesRafaleLazyRoute
   ExperiencesWaterFbmLazyRoute: typeof ExperiencesWaterFbmLazyRoute
 }
 
@@ -133,6 +150,13 @@ declare module '@tanstack/react-router' {
       path: '/experiences/water-fbm'
       fullPath: '/experiences/water-fbm'
       preLoaderRoute: typeof ExperiencesWaterFbmLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/experiences/rafale': {
+      id: '/experiences/rafale'
+      path: '/experiences/rafale'
+      fullPath: '/experiences/rafale'
+      preLoaderRoute: typeof ExperiencesRafaleLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/experiences/grass': {
@@ -172,6 +196,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExperiencesRiversideRoute: ExperiencesRiversideRoute,
   ExperiencesBushLazyRoute: ExperiencesBushLazyRoute,
   ExperiencesGrassLazyRoute: ExperiencesGrassLazyRoute,
+  ExperiencesRafaleLazyRoute: ExperiencesRafaleLazyRoute,
   ExperiencesWaterFbmLazyRoute: ExperiencesWaterFbmLazyRoute,
 }
 export const routeTree = rootRouteImport
