@@ -2,22 +2,21 @@ import {
 	CurveModifier,
 	OrbitControls,
 	useHelper,
-	useTexture,
 	type CurveModifierProps,
 	type CurveModifierRef,
 } from "@react-three/drei";
-import { Canvas, useFrame, type ThreeElements } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { useControls } from "leva";
-import { useMemo, useRef, type FC, type ReactNode } from "react";
+import { Perf } from "r3f-perf";
+import { useMemo, useRef, type FC } from "react";
 import {
 	CatmullRomCurve3,
-	DirectionalLight,
+	type DirectionalLight,
 	DirectionalLightHelper,
 	Vector3,
 } from "three";
-import { Perf } from "r3f-perf";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
 
 const lights_options = {
 	helper: false,
