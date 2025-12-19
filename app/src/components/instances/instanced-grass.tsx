@@ -46,7 +46,7 @@ const InstancedGrass: FC<InstancedGrassProps> = ({
   transforms,
 }) => {
   // Load the grass model
-  const { nodes } = useGLTF("/models/grass.glb", true);
+  const { nodes } = useGLTF("/models/grass_v2.glb", true);
 
   // Load the alpha texture for the grass
   const alpha = useTexture("/textures/vegetations/grass-alpha.webp");

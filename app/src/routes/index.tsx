@@ -493,7 +493,7 @@ const Index = () => {
           </Tile>
 
           <Tile node="grassfield_near" color="#17640f">
-            <GrassTile instances={500} size={20} />
+            <GrassTile instances={200} size={20} />
 
             <Suspense>
               <PoppiesTile instances={100} size={0.025} />
@@ -503,7 +503,7 @@ const Index = () => {
           </Tile>
 
           <Tile node="grassfield_medium" color="#17640f">
-            <GrassTile instances={500} size={30} />
+            <GrassTile instances={200} size={30} />
 
             <Suspense>
               <PoppiesTile instances={50} size={0.03} />
@@ -513,7 +513,7 @@ const Index = () => {
           </Tile>
 
           <Tile node="grassfield_far" color="#17640f">
-            <GrassTile instances={1000} size={45} />
+            <GrassTile instances={500} size={45} />
 
             <Suspense>
               <PoppiesTile instances={50} size={0.05} />
@@ -523,7 +523,7 @@ const Index = () => {
           </Tile>
 
           <Tile node="grassfield_far001" color="#17640f">
-            <GrassTile instances={800} size={50} />
+            <GrassTile instances={400} size={50} />
           </Tile>
         </BaseTerrain>
 
