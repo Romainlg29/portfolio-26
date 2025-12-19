@@ -27,6 +27,9 @@ export const DAY_KEYFRAME: Keyframe = {
   tent: {
     emissiveIntensity: 0,
   },
+  commets: {
+    enabled: false,
+  }
 };
 
 export const NIGHT_KEYFRAME: Keyframe = {
@@ -50,4 +53,7 @@ export const NIGHT_KEYFRAME: Keyframe = {
   tent: {
     emissiveIntensity: 1.5,
   },
+  commets: {
+    enabled: true,
+  }
 };

@@ -1,49 +1,127 @@
+import SimpleParticles from "@/components/particles/SimpleParticles";
+import BaseTerrain from "@/components/terrains/base-terrain";
+import EverlastingTile from "@/components/tiles/everlasting-tile";
+import GrassTile from "@/components/tiles/grass-tile";
+import PeriwinklesTile from "@/components/tiles/periwinkles-tile";
+import PoppiesTile from "@/components/tiles/poppies-tile";
+import Tile from "@/components/tiles/tile";
+import { useAmbientSound } from "@/hooks/useAmbientSound";
+import { useDeviceOrientationPermission } from "@/hooks/useDeviceOrientationPermission";
 import {
-	useHelper,
-	useTexture,
 	PerspectiveCamera as DreiPerspectiveCamera,
-	useGLTF,
 	Html,
 	Stars,
+	useGLTF,
+	useHelper,
+	useTexture,
 } from "@react-three/drei";
-import { Canvas, useFrame, type ThreeElements } from "@react-three/fiber";
+import { Canvas, type ThreeElements, useFrame } from "@react-three/fiber";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useControls } from "leva";
 import {
+	type FC,
+	lazy,
+	type ReactNode,
+	Suspense,
+	useEffect,
 	useMemo,
 	useRef,
-	useEffect,
 	useState,
-	type FC,
-	Suspense,
-	lazy,
 } from "react";
 import {
-	DirectionalLight,
+	CatmullRomCurve3,
+	type DirectionalLight,
 	DirectionalLightHelper,
-	Mesh,
+	type Group,
+	type Mesh,
 	MeshBasicMaterial,
-	PerspectiveCamera as ThreePerspectiveCamera,
+	type PerspectiveCamera as ThreePerspectiveCamera,
+	Vector3,
 } from "three";
-import Tile from "@/components/tiles/tile";
-import GrassTile from "@/components/tiles/grass-tile";
-import PoppiesTile from "@/components/tiles/poppies-tile";
-import EverlastingTile from "@/components/tiles/everlasting-tile";
-import PeriwinklesTile from "@/components/tiles/periwinkles-tile";
-import SimpleParticles from "@/components/particles/SimpleParticles";
-import BaseTerrain from "@/components/terrains/base-terrain";
-import { z } from "zod";
-import { useAmbientSound } from "@/hooks/useAmbientSound";
-import { useDeviceOrientationPermission } from "@/hooks/useDeviceOrientationPermission";
 import CustomShaderMaterial from "three-custom-shader-material/vanilla";
+import { z } from "zod";
 
+import Keyframes from "@/components/controls/Keyframes";
 import BrightnessFragment from "@/components/shaders/csm/brightness-fragment-csm.glsl?raw";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useKeyframeStore } from "@/stores/useKeyframesStore";
-import Keyframes from "@/components/controls/Keyframes";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 
 const lights_options = {
 	helper: false,
+};
+
+type ShootingStarProps = {
+	curve: CatmullRomCurve3;
+	speed?: number;
+	children?: ReactNode[] | ReactNode;
+};
+
+const ShootingStar: FC<ShootingStarProps> = ({
+	curve,
+	speed = 0.001,
+	children,
+}) => {
+	const groupRef = useRef<Group>(null);
+	const offsetRef = useRef(0);
+	const isAnimatingRef = useRef(false);
+
+	const { commets } = useKeyframeStore((s) => s.frame);
+
+	// Set initial position at the start of the curve
+	useEffect(() => {
+		if (groupRef.current) {
+			const startPoint = curve.getPointAt(0);
+			groupRef.current.position.copy(startPoint);
+			groupRef.current.visible = false;
+		}
+	}, [curve]);
+
+	useFrame(() => {
+		if (!groupRef.current) return;
+
+		// Start animation when enabled
+		if (commets.enabled && !isAnimatingRef.current) {
+			isAnimatingRef.current = true;
+			offsetRef.current = 0; // Reset to start
+		}
+
+		// Only animate if we're currently animating
+		if (isAnimatingRef.current) {
+			// Update offset
+			offsetRef.current += speed;
+
+			// Check if animation completed
+			if (offsetRef.current >= 1) {
+				offsetRef.current = 0;
+				isAnimatingRef.current = false;
+
+				// Hide and reset to start position
+				const startPoint = curve.getPointAt(0);
+				groupRef.current.position.copy(startPoint);
+				groupRef.current.visible = false;
+				return;
+			}
+
+			// Make visible during animation
+			groupRef.current.visible = true;
+
+			// Get position on curve
+			const point = curve.getPointAt(offsetRef.current);
+			groupRef.current.position.copy(point);
+
+			// Get tangent for rotation
+			const tangent = curve.getTangentAt(offsetRef.current);
+
+			// Calculate the angle in 3D space
+			const angle = Math.atan2(tangent.y, tangent.x);
+
+			// Apply rotation
+			groupRef.current.rotation.z = angle + Math.PI / 2;
+		}
+	});
+
+	return <group ref={groupRef}>{children}</group>;
 };
 
 const Cloud: FC<
@@ -476,7 +554,44 @@ const Index = () => {
 
 	useAmbientSound("/sounds/ambient/grassfield.wav", { volume: 0.2 });
 
-	console.log("Rendering Index route");
+	const commets = useMemo(
+		() => [
+			{
+				curve: new CatmullRomCurve3([
+					new Vector3(240, 200, -310),
+					new Vector3(-200, 10, -300),
+				]),
+				color: "#ff765a",
+				trail: "#ff765a",
+				speed: 0.0005,
+				coreIntensity: 5,
+				trailIntensity: 10,
+			},
+			{
+				curve: new CatmullRomCurve3([
+					new Vector3(220, 240, -310),
+					new Vector3(-280, 10, -300),
+				]),
+				color: "#ffffff",
+				trail: "#ffffff",
+				speed: 0.0013,
+				coreIntensity: 5,
+				trailIntensity: 4,
+			},
+			{
+				curve: new CatmullRomCurve3([
+					new Vector3(200, 280, -310),
+					new Vector3(-320, 10, -300),
+				]),
+				color: "#5a97ff",
+				trail: "#5a97ff",
+				speed: 0.002,
+				coreIntensity: 5,
+				trailIntensity: 7,
+			},
+		],
+		[],
+	);
 
 	return (
 		<div className="relative w-dvw h-dvh flex bg-gradient-to-b from-[var(--color-sky-background)] to-white">
@@ -585,9 +700,36 @@ const Index = () => {
 
 				<Keyframes />
 
-				{/* <EffectComposer>
-          <Bloom luminanceThreshold={0.5}  />
-        </EffectComposer> */}
+				<EffectComposer>
+					<Bloom luminanceThreshold={1.5} intensity={100} />
+				</EffectComposer>
+
+				{commets.map(
+					({ curve, color, trail, coreIntensity, trailIntensity }, index) => (
+						<ShootingStar key={`commet-${index}`} curve={curve}>
+							<mesh>
+								<sphereGeometry args={[1.5, 16, 16]} />
+								<meshStandardMaterial
+									color={"white"}
+									emissive={color}
+									emissiveIntensity={coreIntensity}
+									toneMapped={false}
+								/>
+							</mesh>
+
+							{/* Trail mesh */}
+							<mesh position-y={50}>
+								<coneGeometry args={[0.25, 100, 8]} />
+								<meshStandardMaterial
+									color={"white"}
+									emissive={trail}
+									emissiveIntensity={trailIntensity}
+									toneMapped={false}
+								/>
+							</mesh>
+						</ShootingStar>
+					),
+				)}
 
 				{performance ? (
 					// Only load when needed to reduce initial bundle size

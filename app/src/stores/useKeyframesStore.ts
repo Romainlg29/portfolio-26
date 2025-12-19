@@ -27,6 +27,10 @@ export type Keyframe = {
   tent: {
     emissiveIntensity: number;
   };
+
+  commets: {
+    enabled: boolean;
+  }
 };
 
 type KeyframeStore = {

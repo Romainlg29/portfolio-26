@@ -84,6 +84,9 @@ const interpolateKeyframes = (
         t
       ),
     },
+    commets: {
+      enabled: t < 0.5 ? a.commets.enabled : b.commets.enabled,
+    }
   };
 
   // Update the sky css var
