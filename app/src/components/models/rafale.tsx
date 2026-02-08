@@ -117,7 +117,7 @@ type LongFocusOptions = {
 };
 
 type RafaleProps = ThreeElements["group"] & {
-  onFocus: (e: ThreeEvent<PointerEvent>) => void;
+  onFocus?: (e: ThreeEvent<PointerEvent>) => void;
   onFocusEnd?: (e: ThreeEvent<PointerEvent>) => void;
   onLongFocus?: (lookAt: THREE.Vector3, options?: LongFocusOptions) => void;
   onLongFocusEnd?: () => void;
