@@ -123,7 +123,7 @@ type RafaleProps = ThreeElements["group"] & {
   onLongFocusEnd?: () => void;
 };
 
-const Rafale: FC<RafaleProps> = (props) => {
+const Rafale: FC<RafaleProps> = ({ children, ...props }) => {
   const { nodes, materials } = useGLTF(
     "/models/vehicles/rafale-transformed.glb",
   ) as unknown as GLTFResult;
@@ -200,6 +200,11 @@ const Rafale: FC<RafaleProps> = (props) => {
 
   return (
     <group {...props} dispose={null}>
+      {
+        // Attach the children to the group
+        children
+      }
+
       <mesh
         castShadow
         receiveShadow
@@ -208,7 +213,7 @@ const Rafale: FC<RafaleProps> = (props) => {
         position={[0, 26.289, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerEnter={(e) =>
-          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, -0.01) })
+          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, 0.75) })
         }
         onPointerLeave={onPointerLeave}
       >
@@ -231,7 +236,9 @@ const Rafale: FC<RafaleProps> = (props) => {
         material={materials.Rafale_Set_4}
         position={[0, 26.289, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
-        onPointerEnter={onPointerEnter}
+        onPointerEnter={(e) =>
+          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, 0) })
+        }
         onPointerLeave={onPointerLeave}
       >
         <meshStandardMaterial>
@@ -254,7 +261,7 @@ const Rafale: FC<RafaleProps> = (props) => {
         position={[0, 26.289, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerEnter={(e) =>
-          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, 0.01) })
+          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, -0.75) })
         }
         onPointerLeave={onPointerLeave}
       >
@@ -278,7 +285,7 @@ const Rafale: FC<RafaleProps> = (props) => {
         position={[0, 26.289, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerEnter={(e) =>
-          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, -0.01), fov: 45 })
+          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, 0.75), fov: 45 })
         }
         onPointerLeave={onPointerLeave}
       >
@@ -302,7 +309,7 @@ const Rafale: FC<RafaleProps> = (props) => {
         position={[0, 26.289, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerEnter={(e) =>
-          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, -0.01), fov: 45 })
+          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, 0.75), fov: 45 })
         }
         onPointerLeave={onPointerLeave}
       >
@@ -326,7 +333,7 @@ const Rafale: FC<RafaleProps> = (props) => {
         position={[0, 26.289, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerEnter={(e) =>
-          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, 0.01), fov: 45 })
+          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, -0.75), fov: 45 })
         }
         onPointerLeave={onPointerLeave}
       >
@@ -350,7 +357,7 @@ const Rafale: FC<RafaleProps> = (props) => {
         position={[0, 26.289, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerEnter={(e) =>
-          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, 0.01), fov: 45 })
+          onPointerEnter(e, { offset: new THREE.Vector3(0, 0, -0.75), fov: 45 })
         }
         onPointerLeave={onPointerLeave}
       >

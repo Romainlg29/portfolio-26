@@ -17,7 +17,7 @@ type RafaleStore = {
 
   setCursor: (cursor: boolean) => void;
   setLookAtTarget: (target: Vector3 | null) => void;
-  setFov: (fov: number) => void;
+  setFov: (fov: number | ((fov: number) => number)) => void;
   setPosition: (position: Vector3) => void;
   setOffset: (offset: Vector3) => void;
 };
@@ -26,12 +26,13 @@ export const useRafaleStore = create<RafaleStore>((set) => ({
   cursor: false,
   lookAtTarget: null,
   fov: 75,
-  position: new Vector3(0.5, 0.38, 0),
+  position: new Vector3(-50, 38.5, 0),
   offset: new Vector3(0, 0, 0),
 
   setCursor: (cursor) => set({ cursor }),
   setLookAtTarget: (target) => set({ lookAtTarget: target }),
-  setFov: (fov) => set({ fov }),
+  setFov: (fov) =>
+    set((state) => ({ fov: typeof fov === "function" ? fov(state.fov) : fov })),
   setPosition: (position) => set({ position }),
   setOffset: (offset) => set({ offset }),
 }));

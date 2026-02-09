@@ -18,6 +18,7 @@
     "@takram/three-atmosphere": "^0.16.0",
     "@tanstack/react-router": "^1.128.0",
     "leva": "^0.10.0",
+    "lucide-react": "^0.563.0",
     "motion": "^12.33.0",
     "r3f-perf": "^7.2.3",
     "react": "^19.1.0",
@@ -26,6 +27,7 @@
     "three": "^0.178.0",
     "three-custom-shader-material": "^6.3.7",
     "three-stdlib": "^2.36.0",
+    "tunnel-rat": "^0.1.2",
     "zod": "^4.0.17",
     "zustand": "^5.0.8"
   },
